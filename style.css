@@ -1,8 +1,22 @@
 body {
-    background-color: #3E3C61
+    background-color: #3E3C61;
     /* #9C9AC1 for light mode background */
+    color:#ffffff
+}
+
+body.light-mode {
+    background-color: #9C9AC1
 }
 
 h1 {
-    color:white
+    color:white;
+    text-align: center;
+}
+
+#taskList {
+    margin-top: 20px;
+}
+
+#lightMode {
+    text-align: right;
 }
