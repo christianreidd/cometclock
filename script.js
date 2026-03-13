@@ -1,8 +1,5 @@
-function createTask(nameInput, taskDueDate, taskDueTime, dateCreated) { // four parameters that will be helpful for tracking the tasks and also for sorting
-    taskList.push(nameInput)
-}
-
 let taskList = [];
+noAssignmentsText(taskList);
 
 function noAssignmentsText(taskList) {
     if (taskList.length == 0) {
@@ -11,7 +8,20 @@ function noAssignmentsText(taskList) {
 }
 
 function addAssignmentButtonClicked() {
+    document.getElementById("creationWindow").style.display = "block";
+}
+
+function createTask() {
     const assignmentName = document.getElementById("nameInput").value;
+    const assignmentDate = document.getElementById("dueDate").value;
+    const assignmentTime = document.getElementById("dueTime").value;
+
+    const taskInfo  = {
+        name: assignmentName,
+        dueDate: assignmentDate,
+        dueTime: assignmentTime
+    };
+
     const newTask = document.createElement("p");
     if (assignmentName == "") {
     }
@@ -19,17 +29,19 @@ function addAssignmentButtonClicked() {
         if (taskList.length == 0) {
             document.getElementById("taskList").innerText = ""
         }
-        newTask.innerText = assignmentName;
+        newTask.innerText = `${taskInfo.name} - Due: ${taskInfo.dueDate} at ${taskInfo.dueTime}`;
         document.getElementById("taskList").appendChild(newTask);
         document.getElementById("nameInput").value = "";
-        taskList.push(assignmentName);
+        document.getElementById("dueDate").value = "";
+        document.getElementById("dueTime").value = "";
+        taskList.push(taskInfo);
+    document.getElementById("creationWindow").style.display = "none";
     }
 }
-noAssignmentsText(taskList);
 
 function lightMode() {
     document.body.classList.toggle('light-mode');
-    const btn = document.querySelector('lightMode');
+    const btn = document.querySelector('#lightMode');
     if (document.body.classList.contains('light-mode')) {
     btn.textContent = 'Dark Mode';
     } else {
@@ -37,9 +49,10 @@ function lightMode() {
     }
 }
 /* 
-- when you click Add Assignment button, open a popup (maybe integrated with device date and time system) where you have text entry fields for the assignment name, due date and time
+- time remaining until due date
+- better formatting for date and time display
 - automatic refresh every second
 - sort by due date, name, date added both forwards and backwards i.e. due soonest, due latest, a-z, z-a, recently added, added first/earliest
 - autofill time and date etc. (1 week from current date, default 11:59pm, automatically detect year)
-- space for additional info e.g. links
+- space for additional info under each task e.g. links
 */

@@ -1,20 +1,26 @@
+<!DOCTYPE html>
 <html lang="en">
-<link rel="stylesheet" href="style.css">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=0, initial-scale=1.0">
-    <title>cometclock 💫</title>
-</head>
-<body>
-    <h1>cometclock 💫</h1>
-    <h2 id="tasks">tasks</h2>
-    <button onClick="lightMode()" type="button" id="lightMode">Light Mode</button>
-    <input id="nameInput" type="text" placeholder="Task Name">
-    <button onClick="addAssignmentButtonClicked()" type="button">Add Assignment</button>
-    <div id="taskList"></div>
-    <br>
+    <head>
+            <link rel="stylesheet" href="style.css">
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=0, initial-scale=1.0">
+            <title>cometclock 💫</title>
+    </head>
+    <body>
+        <h1>cometclock 💫</h1>
+        <h2 id="tasks">tasks</h2>
+        <button onClick="lightMode()" type="button" id="lightMode">Light Mode</button>
+        <button onClick="addAssignmentButtonClicked()" type="button">Add Assignment</button>
+        <div id="taskList"></div>
 
-    <p id="tag">made with ❤️ by christian reid</p>
-    <script src="script.js"></script>
-</body>
+        <div id="creationWindow">
+            <input id="nameInput" type="text" placeholder="Task Name">
+            <input id="dueDate" type="date" placeholder="Due Date">
+            <input id="dueTime" type="time" placeholder="Time Due">
+            <button onClick="createTask()" type="button">Create</button>
+        </div>
+
+        <p id="tag">made with ❤️ by christian reid</p>
+        <script src="script.js"></script>
+    </body>
 </html>
