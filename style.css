@@ -24,3 +24,7 @@ h1 {
 #creationWindow {
     display: none;
 }
+
+#tag {
+    text-align: end;
+}

@@ -29,11 +29,14 @@ function createTask() {
         if (taskList.length == 0) {
             document.getElementById("taskList").innerText = ""
         }
-        newTask.innerText = `${taskInfo.name} - Due: ${taskInfo.dueDate} at ${taskInfo.dueTime}`;
+        const timeLeft = timeRemaining(taskInfo);
+        const units = timeUnits(timeLeft);
+        const dateString = convertDate(taskInfo);
+        newTask.innerText = `${taskInfo.name} - Due on the ${dateString} at ${taskInfo.dueTime} (${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s remaining)`;
         document.getElementById("taskList").appendChild(newTask);
         document.getElementById("nameInput").value = "";
         document.getElementById("dueDate").value = "";
-        document.getElementById("dueTime").value = "";
+        document.getElementById("dueTime").value = "";  
         taskList.push(taskInfo);
     document.getElementById("creationWindow").style.display = "none";
     }
@@ -43,13 +46,84 @@ function lightMode() {
     document.body.classList.toggle('light-mode');
     const btn = document.querySelector('#lightMode');
     if (document.body.classList.contains('light-mode')) {
-    btn.textContent = 'Dark Mode';
+    btn.textContent = '🌑';
     } else {
-    btn.textContent = 'Light Mode';
+    btn.textContent = '🌕';
     }
 }
-/* 
-- time remaining until due date
+
+function timeRemaining(task) {
+    const currentTime = new Date();
+    const dueTime = new Date(`${task.dueDate}T${task.dueTime}`);
+    const timeLeft = dueTime - currentTime;
+    return timeLeft;
+    // if negative timeLeft, overdue
+    // else, show time remaining
+}
+
+function timeUnits(timeLeft) {
+    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(timeLeft / (1000 * 60 * 60)) % 24;
+    const minutes = Math.floor(timeLeft / (1000 * 60)) % 60;
+    const seconds = Math.floor(timeLeft / 1000) % 60;
+    return {days: days, hours: hours, minutes: minutes, seconds: seconds};
+}
+
+function convertDate(taskInfo) {
+    const monthNames = {
+        "01": "January",
+        "02": "February",
+        "03": "March",
+        "04": "April",
+        "05": "May",
+        "06": "June",
+        "07": "July",
+        "08": "August",
+        "09": "September",
+        "10": "October",
+        "11": "November",
+        "12": "December"
+    };
+
+    const dateArray = taskInfo.dueDate.split("-");
+    const year = dateArray[0];
+    const month = monthNames[dateArray[1]];
+    const day = dateArray[2];
+
+    return `${day}${daySuffix(day)} of ${month} ${year}`
+}
+
+function convertTime(taskInfo) {
+    const timeArray = taskInfo.dueTime.split(":")
+    const hour = dateArray[0]
+    const min = dateArray[1]
+
+    // if (hour - 12) > 0
+        // pm
+    // else 
+        // am
+}
+//test area
+//
+
+function daySuffix(day) {
+    let suffix;
+    if (day == "11" || day == "12" || day == "13") {
+        suffix = "th";
+    } else if (day.slice(-1) == 1) {
+        suffix = "st";
+    } else if (day.slice(-1) == 2) {
+        suffix = "nd";
+    } else if (day.slice(-1) == 3) {
+        suffix = "rd";
+    } else {
+        suffix = "th"
+    }
+    return suffix;
+}
+
+/* TO DO:
+- time remaining until due date / overdue if past due date 
 - better formatting for date and time display
 - automatic refresh every second
 - sort by due date, name, date added both forwards and backwards i.e. due soonest, due latest, a-z, z-a, recently added, added first/earliest
