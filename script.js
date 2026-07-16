@@ -106,7 +106,7 @@ function convertTime(taskInfo) {
         timeSuffix = "pm";
     }
 
-    if (hour === 0) {
+    if (hour === "0") {
         hour = 12;
         timeSuffix = "am";
     }
@@ -118,11 +118,11 @@ function daySuffix(day) {
     let suffix;
     if (day === "11" || day === "12" || day === "13") {
         suffix = "th";
-    } else if (day.slice(-1) === 1) {
+    } else if (day.slice(-1) === "1") {
         suffix = "st";
-    } else if (day.slice(-1) === 2) {
+    } else if (day.slice(-1) === "2") {
         suffix = "nd";
-    } else if (day.slice(-1) === 3) {
+    } else if (day.slice(-1) === "3") {
         suffix = "rd";
     } else {
         suffix = "th"
