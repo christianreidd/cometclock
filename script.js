@@ -95,7 +95,7 @@ function convertDate(taskInfo) {
 
 function convertTime(taskInfo) {
     const timeArray = taskInfo.dueTime.split(":");
-    let hour = timeArray[0];
+    let hour = Number(timeArray[0]);
     const min = timeArray[1];
     let timeSuffix = "am";
 
@@ -107,7 +107,7 @@ function convertTime(taskInfo) {
         hour -= 12;
         timeSuffix = "pm";
     }
-    
+
     return `${hour}:${min} ${timeSuffix}`
 }
 
