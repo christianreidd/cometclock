@@ -2,7 +2,7 @@ let taskList = [];
 noAssignmentsText(taskList);
 
 function noAssignmentsText(taskList) {
-    if (taskList.length == 0) {
+    if (taskList.length === 0) {
     document.getElementById("taskList").innerText = "You have no assignments! 🎉 \n Click 'Add Assignment' to create one"
     }
 }
@@ -23,16 +23,16 @@ function createTask() {
     };
 
     const newTask = document.createElement("p");
-    if (assignmentName == "") {
+    if (assignmentName === "") {
     }
     else {
-        if (taskList.length == 0) {
+        if (taskList.length === 0) {
             document.getElementById("taskList").innerText = ""
         }
         const timeLeft = timeRemaining(taskInfo);
         const units = timeUnits(timeLeft);
         const dateString = convertDate(taskInfo);
-        newTask.innerText = `${taskInfo.name} - Due on the ${dateString} at ${taskInfo.dueTime} (${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s remaining)`;
+        newTask.innerText = `${taskInfo.name} - Due on the ${dateString} at ${convertTime(taskInfo)} (${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s remaining)`;
         document.getElementById("taskList").appendChild(newTask);
         document.getElementById("nameInput").value = "";
         document.getElementById("dueDate").value = "";
@@ -94,39 +94,38 @@ function convertDate(taskInfo) {
 }
 
 function convertTime(taskInfo) {
-    const timeArray = taskInfo.dueTime.split(":")
-    const hour = dateArray[0]
-    const min = dateArray[1]
+    const timeArray = taskInfo.dueTime.split(":");
+    let hour = timeArray[0];
+    const min = timeArray[1];
+    let timeSuffix = "am";
 
-    // if (hour - 12) > 0
-        // pm
-    // else 
-        // am
+    if ((hour - 12) >= 0) {
+        if (hour != 12) {
+            hour = hour - 12;
+        }
+        timeSuffix = "pm";
+    }
+
+    if (hour === 0) {
+        hour = 12;
+        timeSuffix = "am";
+    }
+
+    return `${hour}:${min} ${timeSuffix}`
 }
-//test area
-//
 
 function daySuffix(day) {
     let suffix;
-    if (day == "11" || day == "12" || day == "13") {
+    if (day === "11" || day === "12" || day === "13") {
         suffix = "th";
-    } else if (day.slice(-1) == 1) {
+    } else if (day.slice(-1) === 1) {
         suffix = "st";
-    } else if (day.slice(-1) == 2) {
+    } else if (day.slice(-1) === 2) {
         suffix = "nd";
-    } else if (day.slice(-1) == 3) {
+    } else if (day.slice(-1) === 3) {
         suffix = "rd";
     } else {
         suffix = "th"
     }
     return suffix;
 }
-
-/* TO DO:
-- time remaining until due date / overdue if past due date 
-- better formatting for date and time display
-- automatic refresh every second
-- sort by due date, name, date added both forwards and backwards i.e. due soonest, due latest, a-z, z-a, recently added, added first/earliest
-- autofill time and date etc. (1 week from current date, default 11:59pm, automatically detect year)
-- space for additional info under each task e.g. links
-*/
