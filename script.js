@@ -108,7 +108,7 @@ function convertTime(taskInfo) {
         timeSuffix = "pm";
     }
 
-    return `${hour}:${min} ${timeSuffix}`
+    return `${hour}:${min}${timeSuffix}`
 }
 
 function daySuffix(day) {
