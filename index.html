@@ -34,6 +34,35 @@
             <button onClick="createTask()" type="button">Create</button>
         </div>
 
+        <div id="taskModal" class="modal">
+            <div class="modal-content">
+                <h3>Task Details</h3>
+
+                <label for="modalTaskName">Task name</label>
+                <input id="modalTaskName" type="text" placeholder="Task name">
+
+                <label for="modalDueDate">Due date</label>
+                <input id="modalDueDate" type="date">
+
+                <label for="modalDueTime">Due time</label>
+                <input id="modalDueTime" type="time">
+
+                <label for="modalTaskNotes">Notes</label>
+                <textarea id="modalTaskNotes" placeholder="Add notes here"></textarea>
+
+                <label class="checkbox-row" for="modalCompleted">
+                    <input id="modalCompleted" type="checkbox">
+                    Mark as complete ✅
+                </label>
+
+                <div class="modal-actions">
+                    <button type="button" onClick="saveTaskEdits()">Save</button>
+                    <button type="button" onClick="deleteSelectedTask()">Delete</button>
+                    <button type="button" onClick="closeTaskModal()">Close</button>
+                </div>
+            </div>
+        </div>
+
         <p id="tag">made with ❤️ by christian reid</p>
         <script src="script.js"></script>
     </body>

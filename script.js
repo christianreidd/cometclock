@@ -1,5 +1,6 @@
 let taskList = [];
 let currentSortMode = 'due-asc';
+let selectedTaskId = null;
 
 let autoRefreshIntervalId = null;
 
@@ -59,7 +60,9 @@ function ensureTaskShape(t) {
         name: t.name || '',
         dueDate: t.dueDate || '',
         dueTime: t.dueTime || '',
-        dateAdded: t.dateAdded || new Date().toISOString()
+        dateAdded: t.dateAdded || new Date().toISOString(),
+        notes: t.notes || '',
+        completed: Boolean(t.completed)
     };
 }
 
@@ -88,22 +91,36 @@ function renderTasks() {
     }
     const sortedTasks = getSortedTasks(taskList, currentSortMode);
     sortedTasks.forEach(task => {
-        const el = document.createElement('p');
+        const el = document.createElement('button');
+        el.type = 'button';
+        el.className = 'task-item';
+        if (task.completed) {
+            el.classList.add('completed');
+        }
+
         const timeLeft = timeRemaining(task);
         const dateString = convertDate(task);
-        if (timeLeft < 0) {
+        let prefix = '';
+        if (task.completed) {
+            prefix = '✅ ';
+            el.innerText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (Completed)`;
+        } else if (timeLeft < 0) {
+            el.classList.add('overdue');
             const units = timeUnits(Math.abs(timeLeft));
-            el.innerText = `❌ ${task.name} - Due on the ${dateString} at ${convertTime(task)} (Overdue by ${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s)`;
-            el.style.color = '#ff0000';
+            prefix = '❌ ';
+            el.innerText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (Overdue by ${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s)`;
         } else if (timeLeft <= 3 * 24 * 60 * 60 * 1000) {
+            el.classList.add('due-soon');
             const units = timeUnits(timeLeft);
-            el.innerText = `⏰ ${task.name} - Due on the ${dateString} at ${convertTime(task)} (${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s remaining)`;
-            el.style.color = '#ff6200';
+            prefix = '⏰ ';
+            el.innerText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s remaining)`;
         } else {
             const units = timeUnits(timeLeft);
-            const dateString = convertDate(task);
-            el.innerText = `${task.name} - Due on the ${dateString} at ${convertTime(task)} (${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s remaining)`;
+            prefix = '';
+            el.innerText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s remaining)`;
         }
+
+        el.addEventListener('click', () => openTaskModal(task.id));
         container.appendChild(el);
     });
 }
@@ -147,7 +164,9 @@ function createTask() {
         name: assignmentName,
         dueDate: assignmentDate,
         dueTime: assignmentTime,
-        dateAdded: new Date().toISOString()
+        dateAdded: new Date().toISOString(),
+        notes: '',
+        completed: false
     };
 
     if (!assignmentName) return;
@@ -162,6 +181,62 @@ function createTask() {
     document.getElementById("creationWindow").style.display = "none";
     renderTasks();
     saveTasks();
+}
+
+function findTaskById(taskId) {
+    return taskList.find(t => t.id === taskId);
+}
+
+function openTaskModal(taskId) {
+    const task = findTaskById(taskId);
+    if (!task) return;
+
+    selectedTaskId = taskId;
+    document.getElementById('modalTaskName').value = task.name || '';
+    document.getElementById('modalDueDate').value = task.dueDate || '';
+    document.getElementById('modalDueTime').value = task.dueTime || '';
+    document.getElementById('modalTaskNotes').value = task.notes || '';
+    document.getElementById('modalCompleted').checked = Boolean(task.completed);
+
+    document.getElementById('taskModal').classList.add('open');
+}
+
+function closeTaskModal() {
+    selectedTaskId = null;
+    document.getElementById('taskModal').classList.remove('open');
+}
+
+async function saveTaskEdits() {
+    if (!selectedTaskId) return;
+    const task = findTaskById(selectedTaskId);
+    if (!task) return;
+
+    const name = document.getElementById('modalTaskName').value.trim();
+    if (!name) {
+        alert('Task name cannot be empty.');
+        return;
+    }
+
+    task.name = name;
+    task.dueDate = document.getElementById('modalDueDate').value;
+    task.dueTime = document.getElementById('modalDueTime').value;
+    task.notes = document.getElementById('modalTaskNotes').value;
+    task.completed = document.getElementById('modalCompleted').checked;
+
+    await saveTasks();
+    renderTasks();
+    closeTaskModal();
+}
+
+async function deleteSelectedTask() {
+    if (!selectedTaskId) return;
+    const confirmed = confirm('Delete this task? This cannot be undone.');
+    if (!confirmed) return;
+
+    taskList = taskList.filter(t => t.id !== selectedTaskId);
+    await saveTasks();
+    renderTasks();
+    closeTaskModal();
 }
 
 // Export current tasks as a JSON file
