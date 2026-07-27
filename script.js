@@ -174,7 +174,7 @@ function createTask() {
     };
 
     if (!assignmentName) {
-        alert('Task name cannot be empty.');
+        alert('Task Name cannot be empty.');
         return;
     }
 
@@ -220,7 +220,7 @@ async function saveTaskEdits() {
 
     const name = document.getElementById('modalTaskName').value.trim();
     if (!name) {
-        alert('Task name cannot be empty.');
+        alert('Task Name cannot be empty.');
         return;
     }
 
