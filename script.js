@@ -80,9 +80,20 @@ function renderTasks() {
     taskList.forEach(task => {
         const el = document.createElement('p');
         const timeLeft = timeRemaining(task);
-        const units = timeUnits(timeLeft);
         const dateString = convertDate(task);
-        el.innerText = `${task.name} - Due on the ${dateString} at ${convertTime(task)} (${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s remaining)`;
+        if (timeLeft < 0) {
+            const units = timeUnits(Math.abs(timeLeft));
+            el.innerText = `❌ ${task.name} - Due on the ${dateString} at ${convertTime(task)} (Overdue by ${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s)`;
+            el.style.color = '#ff0000';
+        } else if (timeLeft <= 3 * 24 * 60 * 60 * 1000) {
+            const units = timeUnits(timeLeft);
+            el.innerText = `⏰ ${task.name} - Due on the ${dateString} at ${convertTime(task)} (${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s remaining)`;
+            el.style.color = '#ff6200';
+        } else {
+            const units = timeUnits(timeLeft);
+            const dateString = convertDate(task);
+            el.innerText = `${task.name} - Due on the ${dateString} at ${convertTime(task)} (${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s remaining)`;
+        }
         container.appendChild(el);
     });
 }
