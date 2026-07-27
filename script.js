@@ -1,8 +1,17 @@
 let taskList = [];
+let currentSortMode = 'due-asc';
 
 let autoRefreshIntervalId = null;
 
 window.addEventListener('DOMContentLoaded', async () => {
+    const sortSelect = document.getElementById('sortMode');
+    if (sortSelect) {
+        sortSelect.value = currentSortMode;
+        sortSelect.addEventListener('change', (e) => {
+            currentSortMode = e.target.value;
+            renderTasks();
+        });
+    }
     await loadTasks();
     startAutoRefresh();
 });
@@ -77,7 +86,8 @@ function renderTasks() {
         noAssignmentsText();
         return;
     }
-    taskList.forEach(task => {
+    const sortedTasks = getSortedTasks(taskList, currentSortMode);
+    sortedTasks.forEach(task => {
         const el = document.createElement('p');
         const timeLeft = timeRemaining(task);
         const dateString = convertDate(task);
@@ -96,6 +106,30 @@ function renderTasks() {
         }
         container.appendChild(el);
     });
+}
+
+function getSortedTasks(tasks, mode) {
+    const sorted = [...tasks];
+
+    const dueTimestamp = (task) => new Date(`${task.dueDate}T${task.dueTime || '23:59'}`).getTime();
+    const createdTimestamp = (task) => new Date(task.dateAdded || 0).getTime();
+    const nameValue = (task) => (task.name || '').toLowerCase();
+
+    if (mode === 'due-asc') {
+        sorted.sort((a, b) => dueTimestamp(a) - dueTimestamp(b));
+    } else if (mode === 'due-desc') {
+        sorted.sort((a, b) => dueTimestamp(b) - dueTimestamp(a));
+    } else if (mode === 'name-asc') {
+        sorted.sort((a, b) => nameValue(a).localeCompare(nameValue(b)));
+    } else if (mode === 'name-desc') {
+        sorted.sort((a, b) => nameValue(b).localeCompare(nameValue(a)));
+    } else if (mode === 'created-asc') {
+        sorted.sort((a, b) => createdTimestamp(a) - createdTimestamp(b));
+    } else if (mode === 'created-desc') {
+        sorted.sort((a, b) => createdTimestamp(b) - createdTimestamp(a));
+    }
+
+    return sorted;
 }
 
 async function saveTasks() {

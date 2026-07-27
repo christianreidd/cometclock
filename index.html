@@ -15,6 +15,15 @@
             <button onClick="exportTasks()" type="button">Export Tasks</button>
             <button onClick="document.getElementById('importFile').click()" type="button">Import Tasks</button>
             <input id="importFile" type="file" accept="application/json" style="display:none" />
+            <label for="sortMode">Sort:</label>
+            <select id="sortMode">
+                <option value="due-asc">Due date (soonest first)</option>
+                <option value="due-desc">Due date (latest first)</option>
+                <option value="name-asc">Name (A-Z)</option>
+                <option value="name-desc">Name (Z-A)</option>
+                <option value="created-asc">Date created (oldest first)</option>
+                <option value="created-desc">Date created (newest first)</option>
+            </select>
         </div>
         <div id="taskList"></div>
 
