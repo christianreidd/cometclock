@@ -10,7 +10,12 @@
     <body>
         <h1>cometclock 💫</h1>
         <h2 id="tasks">tasks</h2>
-        <button onClick="addAssignmentButtonClicked()" type="button">Add Assignment</button>
+        <div class="controls">
+            <button onClick="addAssignmentButtonClicked()" type="button">Add Assignment</button>
+            <button onClick="exportTasks()" type="button">Export Tasks</button>
+            <button onClick="document.getElementById('importFile').click()" type="button">Import Tasks</button>
+            <input id="importFile" type="file" accept="application/json" style="display:none" />
+        </div>
         <div id="taskList"></div>
 
         <div id="creationWindow">
