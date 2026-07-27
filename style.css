@@ -53,8 +53,12 @@ h1 {
     text-align: right;
 }
 
-#creationWindow {
+#creationWindow.modal {
     display: none;
+}
+
+#creationWindow.modal.open {
+    display: flex;
 }
 
 .modal {

@@ -27,11 +27,24 @@
         </div>
         <div id="taskList"></div>
 
-        <div id="creationWindow">
-            <input id="nameInput" type="text" placeholder="Task Name">
-            <input id="dueDate" type="date" placeholder="Due Date">
-            <input id="dueTime" type="time" placeholder="Time Due">
-            <button onClick="createTask()" type="button">Create</button>
+        <div id="creationWindow" class="modal">
+            <div class="modal-content">
+                <h3>Create Task</h3>
+
+                <label for="nameInput">Task name</label>
+                <input id="nameInput" type="text" placeholder="Task Name">
+
+                <label for="dueDate">Due date</label>
+                <input id="dueDate" type="date" placeholder="Due Date">
+
+                <label for="dueTime">Due time</label>
+                <input id="dueTime" type="time" placeholder="Time Due">
+
+                <div class="modal-actions">
+                    <button onClick="createTask()" type="button">Create</button>
+                    <button onClick="closeCreateTaskModal()" type="button">Cancel</button>
+                </div>
+            </div>
         </div>
 
         <div id="taskModal" class="modal">

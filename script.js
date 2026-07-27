@@ -73,7 +73,11 @@ function noAssignmentsText() {
 }
 
 function addAssignmentButtonClicked() {
-    document.getElementById("creationWindow").style.display = "block";
+    document.getElementById('creationWindow').classList.add('open');
+}
+
+function closeCreateTaskModal() {
+    document.getElementById('creationWindow').classList.remove('open');
 }
 
 async function loadTasks() {
@@ -169,7 +173,10 @@ function createTask() {
         completed: false
     };
 
-    if (!assignmentName) return;
+    if (!assignmentName) {
+        alert('Task name cannot be empty.');
+        return;
+    }
 
     if (taskList.length === 0) {
         document.getElementById("taskList").innerText = "";
@@ -178,7 +185,7 @@ function createTask() {
     document.getElementById("nameInput").value = "";
     document.getElementById("dueDate").value = "";
     document.getElementById("dueTime").value = "";  
-    document.getElementById("creationWindow").style.display = "none";
+    closeCreateTaskModal();
     renderTasks();
     saveTasks();
 }
