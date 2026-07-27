@@ -1,8 +1,9 @@
 # high priority:
 [ ] save tasks across sessions
 
-# low priority:
 [ ] automatic refresh every second
+
+# low priority:
 
 [ ] better interface
 
@@ -10,7 +11,7 @@
 
 [ ] space for additional info under each task e.g. links or notes
 
-[] overdue if past due date
+[ ] overdue if past due date
 
 
 
