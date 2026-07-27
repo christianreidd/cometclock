@@ -107,7 +107,7 @@ function renderTasks() {
         let prefix = '';
         if (task.completed) {
             prefix = '✅ ';
-            el.innerText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (Completed)`;
+            el.innerText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (Done!)`;
         } else if (timeLeft < 0) {
             el.classList.add('overdue');
             const units = timeUnits(Math.abs(timeLeft));
