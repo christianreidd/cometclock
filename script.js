@@ -197,7 +197,7 @@ function lightMode() {
     document.body.classList.toggle('light-mode');
     const btn = document.querySelector('#lightMode');
     if (document.body.classList.contains('light-mode')) {
-        btn.textContent = '🌑';
+        btn.textContent = '🌑';    
     } else {
         btn.textContent = '🌕';
     }

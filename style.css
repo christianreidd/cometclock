@@ -1,11 +1,12 @@
 body {
-    background-color: #3E3C61;
+    background-color: #4a2e63;
     /* #9C9AC1 for light mode background */
     color:#ffffff
 }
 
 body.light-mode {
-    background-color: #9C9AC1
+    background-color: #7d58a3;
+    color: #000000
 }
 
 h1 {
