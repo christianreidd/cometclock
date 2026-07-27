@@ -1,8 +1,24 @@
 let taskList = [];
 
-window.addEventListener('DOMContentLoaded', () => {
-    loadTasks();
+let autoRefreshIntervalId = null;
+
+window.addEventListener('DOMContentLoaded', async () => {
+    await loadTasks();
+    startAutoRefresh();
 });
+
+function startAutoRefresh() {
+    if (autoRefreshIntervalId) return;
+    autoRefreshIntervalId = setInterval(() => {
+        renderTasks();
+    }, 1000);
+}
+
+function stopAutoRefresh() {
+    if (!autoRefreshIntervalId) return;
+    clearInterval(autoRefreshIntervalId);
+    autoRefreshIntervalId = null;
+}
 // Persistence adapter: default to localStorage for now.
 // Swap this object for a server-backed adapter later without changing the rest of the code.
 const storageAdapter = {
