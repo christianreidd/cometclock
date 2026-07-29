@@ -68,7 +68,7 @@ function ensureTaskShape(t) {
 
 function noAssignmentsText() {
     if (taskList.length === 0) {
-        document.getElementById("taskList").innerText = "You have no assignments! 🎉 \n Click 'Add Assignment' to create one";
+        document.getElementById("taskList").textContent = "You have no assignments! 🎉 \n Click 'Add Assignment' to create one";
     }
 }
 
@@ -107,21 +107,21 @@ function renderTasks() {
         let prefix = '';
         if (task.completed) {
             prefix = '✅ ';
-            el.innerText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (Done!)`;
+            el.textContent = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (Done!)`;
         } else if (timeLeft < 0) {
             el.classList.add('overdue');
             const units = timeUnits(Math.abs(timeLeft));
             prefix = '❌ ';
-            el.innerText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (Overdue by ${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s)`;
+            el.textContent = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (Overdue by ${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s)`;
         } else if (timeLeft <= 3 * 24 * 60 * 60 * 1000) {
             el.classList.add('due-soon');
             const units = timeUnits(timeLeft);
             prefix = '⏰ ';
-            el.innerText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s remaining)`;
+            el.textContent = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s remaining)`;
         } else {
             const units = timeUnits(timeLeft);
             prefix = '';
-            el.innerText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s remaining)`;
+            el.textContent = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s remaining)`;
         }
 
         el.addEventListener('click', () => openTaskModal(task.id));
@@ -179,7 +179,7 @@ function createTask() {
     }
 
     if (taskList.length === 0) {
-        document.getElementById("taskList").innerText = "";
+        document.getElementById("taskList").textContent = "";
     }
     taskList.push(taskInfo);
     document.getElementById("nameInput").value = "";
