@@ -3,7 +3,11 @@
 body {
     font-family: 'Lato', sans-serif;
     background-color: #4a2e63;
-    color:#ffffff
+    color:#ffffff;
+    margin: 0;
+    padding: 12px;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 body.light-mode {
@@ -32,6 +36,8 @@ h1 {
     justify-content: space-between;
     gap: 10px;
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     text-align: left;
     margin: 8px 0;
     padding: 10px;
@@ -44,11 +50,14 @@ h1 {
 
 .task-content {
     flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .task-action-buttons {
     display: flex;
     gap: 6px;
+    flex-shrink: 0;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease;
@@ -95,6 +104,14 @@ h1 {
 
 #lightMode {
     text-align: right;
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    max-width: 100%;
 }
 
 #creationWindow.modal {
