@@ -60,7 +60,8 @@ h1 {
     pointer-events: auto;
 }
 
-.task-action-btn {
+.task-action-btn,
+.control-btn {
     border: 0;
     border-radius: 6px;
     padding: 6px 8px;

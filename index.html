@@ -11,21 +11,25 @@
             <button onClick="lightMode()" type="button" id="lightMode">🌕</button>
         </div>
         <h1>cometclock 💫</h1>
-        <h2 id="tasks">tasks</h2>
         <div class="controls">
-            <button onClick="addAssignmentButtonClicked()" type="button">Add Assignment</button>
-            <button onClick="exportTasks()" type="button">Export Tasks</button>
-            <button onClick="document.getElementById('importFile').click()" type="button">Import Tasks</button>
+            <button class="control-btn" onClick="addAssignmentButtonClicked()" type="button" title="Add task">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+            </button>
+            <button class="control-btn" onClick="exportTasks()" type="button" title="Export tasks">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M12 12v6"/><path d="m15 15-3-3-3 3"/></svg>
+            </button>
+            <button class="control-btn" onClick="document.getElementById('importFile').click()" type="button" title="Import tasks">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>
+            </button>
             <input id="importFile" type="file" accept="application/json" style="display:none" />
-            <label for="sortMode">Sort:</label>
+            <label for="sortMode">Sort By:</label>
             <select id="sortMode">
-                <option value="due-asc">Due date (soonest first)</option>
-                <option value="due-desc">Due date (latest first)</option>
-                <option value="name-asc">Name (A-Z)</option>
-                <option value="name-desc">Name (Z-A)</option>
-                <option value="created-asc">Date created (oldest first)</option>
-                <option value="created-desc">Date created (newest first)</option>
+                <option value="due">Due Date</option>
+                <option value="name">Name</option>
+                <option value="created">Date Created</option>
             </select>
+            <button class="control-btn" id="sortDirectionButton" type="button" title="Toggle sort direction">⬇️</button>
+            <h2 id="tasks">tasks</h2>
         </div>
         <div id="taskList"></div>
 
@@ -65,14 +69,8 @@
                 <label for="modalTaskNotes">Notes</label>
                 <textarea id="modalTaskNotes" placeholder="Add Notes Here..."></textarea>
 
-                <label class="checkbox-row" for="modalCompleted">
-                    <input id="modalCompleted" type="checkbox">
-                    Complete
-                </label>
-
                 <div class="modal-actions">
                     <button type="button" onClick="saveTaskEdits()">Save</button>
-                    <button type="button" onClick="deleteSelectedTask()">Delete</button>
                     <button type="button" onClick="closeTaskModal()">Close</button>
                 </div>
             </div>

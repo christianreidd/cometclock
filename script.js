@@ -1,5 +1,6 @@
 let taskList = [];
-let currentSortMode = 'due-asc';
+let currentSortField = 'due';
+let currentSortDirection = 'asc';
 let selectedTaskId = null;
 
 let autoRefreshIntervalId = null;
@@ -7,12 +8,23 @@ let autoRefreshIntervalId = null;
 window.addEventListener('DOMContentLoaded', async () => {
     const sortSelect = document.getElementById('sortMode');
     if (sortSelect) {
-        sortSelect.value = currentSortMode;
+        sortSelect.value = currentSortField;
         sortSelect.addEventListener('change', (e) => {
-            currentSortMode = e.target.value;
+            currentSortField = e.target.value;
             renderTasks();
         });
     }
+
+    const sortDirectionButton = document.getElementById('sortDirectionButton');
+    if (sortDirectionButton) {
+        sortDirectionButton.addEventListener('click', () => {
+            currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+            sortDirectionButton.textContent = currentSortDirection === 'asc' ? '⬇️' : '⬆️';
+            renderTasks();
+        });
+        sortDirectionButton.textContent = currentSortDirection === 'asc' ? '⬇️' : '⬆️';
+    }
+
     await loadTasks();
     startAutoRefresh();
 });
@@ -68,7 +80,7 @@ function ensureTaskShape(t) {
 
 function noAssignmentsText() {
     if (taskList.length === 0) {
-        document.getElementById("taskList").textContent = "You have no assignments! 🎉 \n Click 'Add Assignment' to create one";
+        document.getElementById("taskList").textContent = "You have no assignments! 🎉 \n Click + to create one";
     }
 }
 
@@ -93,7 +105,7 @@ function renderTasks() {
         noAssignmentsText();
         return;
     }
-    const sortedTasks = getSortedTasks(taskList, currentSortMode);
+    const sortedTasks = getSortedTasks(taskList, currentSortField, currentSortDirection);
     sortedTasks.forEach(task => {
         const el = document.createElement('div');
         el.className = 'task-item';
@@ -172,25 +184,21 @@ function renderTasks() {
     });
 }
 
-function getSortedTasks(tasks, mode) {
+function getSortedTasks(tasks, field, direction = 'asc') {
     const sorted = [...tasks];
 
     const dueTimestamp = (task) => new Date(`${task.dueDate}T${task.dueTime || '23:59'}`).getTime();
     const createdTimestamp = (task) => new Date(task.dateAdded || 0).getTime();
     const nameValue = (task) => (task.name || '').toLowerCase();
 
-    if (mode === 'due-asc') {
-        sorted.sort((a, b) => dueTimestamp(a) - dueTimestamp(b));
-    } else if (mode === 'due-desc') {
-        sorted.sort((a, b) => dueTimestamp(b) - dueTimestamp(a));
-    } else if (mode === 'name-asc') {
-        sorted.sort((a, b) => nameValue(a).localeCompare(nameValue(b)));
-    } else if (mode === 'name-desc') {
-        sorted.sort((a, b) => nameValue(b).localeCompare(nameValue(a)));
-    } else if (mode === 'created-asc') {
-        sorted.sort((a, b) => createdTimestamp(a) - createdTimestamp(b));
-    } else if (mode === 'created-desc') {
-        sorted.sort((a, b) => createdTimestamp(b) - createdTimestamp(a));
+    const multiplier = direction === 'asc' ? 1 : -1;
+
+    if (field === 'due') {
+        sorted.sort((a, b) => (dueTimestamp(a) - dueTimestamp(b)) * multiplier);
+    } else if (field === 'name') {
+        sorted.sort((a, b) => nameValue(a).localeCompare(nameValue(b)) * multiplier);
+    } else if (field === 'created') {
+        sorted.sort((a, b) => (createdTimestamp(a) - createdTimestamp(b)) * multiplier);
     }
 
     return sorted;
@@ -246,7 +254,6 @@ function openTaskModal(taskId) {
     document.getElementById('modalDueDate').value = task.dueDate || '';
     document.getElementById('modalDueTime').value = task.dueTime || '';
     document.getElementById('modalTaskNotes').value = task.notes || '';
-    document.getElementById('modalCompleted').checked = Boolean(task.completed);
 
     document.getElementById('taskModal').classList.add('open');
 }
@@ -271,7 +278,6 @@ async function saveTaskEdits() {
     task.dueDate = document.getElementById('modalDueDate').value;
     task.dueTime = document.getElementById('modalDueTime').value;
     task.notes = document.getElementById('modalTaskNotes').value;
-    task.completed = document.getElementById('modalCompleted').checked;
 
     await saveTasks();
     renderTasks();
