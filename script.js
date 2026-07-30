@@ -80,7 +80,13 @@ function ensureTaskShape(t) {
 
 function noAssignmentsText() {
     if (taskList.length === 0) {
-        document.getElementById("taskList").textContent = "You have no assignments! 🎉 \n Click + to create one";
+        const container = document.getElementById("taskList");
+        container.innerHTML = '';
+
+        const emptyState = document.createElement('div');
+        emptyState.className = 'empty-state';
+        emptyState.innerHTML = 'You have no assignments! 🎉<br>Click "+" to create one';
+        container.appendChild(emptyState);
     }
 }
 
@@ -138,7 +144,7 @@ function renderTasks() {
 
         const content = document.createElement('div');
         content.className = 'task-content';
-        content.textContent = taskText;
+        content.innerHTML = taskText.replace(/\n/g, '<br>');
 
         const actions = document.createElement('div');
         actions.className = 'task-action-buttons';

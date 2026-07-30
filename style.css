@@ -8,6 +8,13 @@ body {
     padding: 12px;
     box-sizing: border-box;
     overflow-x: hidden;
+    min-height: 100vh;
+}
+
+.app-shell {
+    width: min(760px, 100%);
+    margin: 0 auto;
+    box-sizing: border-box;
 }
 
 body.light-mode {
@@ -30,9 +37,15 @@ h1 {
     margin-top: 20px;
 }
 
+.empty-state {
+    white-space: pre-line;
+    padding: 12px 0;
+    line-height: 1.5;
+}
+
 .task-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 10px;
     width: 100%;
@@ -52,6 +65,8 @@ h1 {
     flex: 1;
     min-width: 0;
     overflow-wrap: anywhere;
+    white-space: pre-line;
+    line-height: 1.45;
 }
 
 .task-action-buttons {
