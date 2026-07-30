@@ -95,8 +95,7 @@ function renderTasks() {
     }
     const sortedTasks = getSortedTasks(taskList, currentSortMode);
     sortedTasks.forEach(task => {
-        const el = document.createElement('button');
-        el.type = 'button';
+        const el = document.createElement('div');
         el.className = 'task-item';
         if (task.completed) {
             el.classList.add('completed');
@@ -105,26 +104,70 @@ function renderTasks() {
         const timeLeft = timeRemaining(task);
         const dateString = convertDate(task);
         let prefix = '';
+        let taskText = '';
         if (task.completed) {
             prefix = '✅ ';
-            el.textContent = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (Done!)`;
+            taskText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (Done!)`;
         } else if (timeLeft < 0) {
             el.classList.add('overdue');
             const units = timeUnits(Math.abs(timeLeft));
             prefix = '❌ ';
-            el.textContent = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (Overdue by ${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s)`;
+            taskText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (Overdue by ${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s)`;
         } else if (timeLeft <= 3 * 24 * 60 * 60 * 1000) {
             el.classList.add('due-soon');
             const units = timeUnits(timeLeft);
             prefix = '⏰ ';
-            el.textContent = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s remaining)`;
+            taskText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s remaining)`;
         } else {
             const units = timeUnits(timeLeft);
             prefix = '';
-            el.textContent = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s remaining)`;
+            taskText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s remaining)`;
         }
 
-        el.addEventListener('click', () => openTaskModal(task.id));
+        const content = document.createElement('div');
+        content.className = 'task-content';
+        content.textContent = taskText;
+
+        const actions = document.createElement('div');
+        actions.className = 'task-action-buttons';
+
+        const editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.className = 'task-action-btn';
+        editButton.title = 'Edit task';
+        editButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>`;
+        editButton.addEventListener('click', (event) => {
+            event.stopPropagation();
+            openTaskModal(task.id);
+        });
+
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'task-action-btn delete-btn';
+        deleteButton.title = 'Delete task';
+        deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
+        deleteButton.addEventListener('click', async (event) => {
+            event.stopPropagation();
+            await deleteTask(task.id);
+        });
+
+        const completeButton = document.createElement('button');
+        completeButton.type = 'button';
+        completeButton.className = 'task-action-btn complete-btn';
+        completeButton.title = task.completed ? 'Mark as not complete' : 'Mark as complete';
+        completeButton.innerHTML = task.completed
+            ? `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>`
+            : `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>`;
+        completeButton.addEventListener('click', async (event) => {
+            event.stopPropagation();
+            await toggleTaskCompletion(task.id);
+        });
+
+        actions.appendChild(editButton);
+        actions.appendChild(deleteButton);
+        actions.appendChild(completeButton);
+        el.appendChild(content);
+        el.appendChild(actions);
         container.appendChild(el);
     });
 }
@@ -235,15 +278,31 @@ async function saveTaskEdits() {
     closeTaskModal();
 }
 
-async function deleteSelectedTask() {
-    if (!selectedTaskId) return;
+async function toggleTaskCompletion(taskId) {
+    const task = findTaskById(taskId);
+    if (!task) return;
+
+    task.completed = !task.completed;
+    await saveTasks();
+    renderTasks();
+}
+
+async function deleteTask(taskId) {
+    if (!taskId) return;
     const confirmed = confirm('Delete this task? This cannot be undone.');
     if (!confirmed) return;
 
-    taskList = taskList.filter(t => t.id !== selectedTaskId);
+    taskList = taskList.filter(t => t.id !== taskId);
     await saveTasks();
     renderTasks();
-    closeTaskModal();
+    if (selectedTaskId === taskId) {
+        closeTaskModal();
+    }
+}
+
+async function deleteSelectedTask() {
+    if (!selectedTaskId) return;
+    await deleteTask(selectedTaskId);
 }
 
 // Export current tasks as a JSON file
