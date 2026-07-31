@@ -1,162 +1,174 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <link rel="stylesheet" href="style.css" />
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>cometclock 💫</title>
-  </head>
-  <body>
-    <main class="app-shell">
-      <div class="top-bar">
-        <button onClick="lightMode()" type="button" id="lightMode">🌕</button>
-      </div>
-      <h1>cometclock 💫</h1>
-      <div class="controls">
-        <button
-          class="control-btn"
-          onClick="addAssignmentButtonClicked()"
-          type="button"
-          title="Add task"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M5 12h14" />
-            <path d="M12 5v14" />
-          </svg>
-        </button>
-        <button
-          class="control-btn"
-          onClick="exportTasks()"
-          type="button"
-          title="Export tasks"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path
-              d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"
-            />
-            <path d="M14 2v5a1 1 0 0 0 1 1h5" />
-            <path d="M12 12v6" />
-            <path d="m15 15-3-3-3 3" />
-          </svg>
-        </button>
-        <button
-          class="control-btn"
-          onClick="document.getElementById('importFile').click()"
-          type="button"
-          title="Import tasks"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path
-              d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"
-            />
-            <path d="M14 2v5a1 1 0 0 0 1 1h5" />
-            <path d="M12 18v-6" />
-            <path d="m9 15 3 3 3-3" />
-          </svg>
-        </button>
-        <input
-          id="importFile"
-          type="file"
-          accept="application/json"
-          style="display: none"
-        />
-        <label for="sortMode">Sort By:</label>
-        <select id="sortMode">
-          <option value="due">Due Date</option>
-          <option value="name">Name</option>
-          <option value="created">Date Created</option>
-        </select>
-        <button
-          class="control-btn"
-          id="sortDirectionButton"
-          type="button"
-          title="Toggle sort direction"
-        >
-          ⬇️
-        </button>
-      </div>
-      <div id="taskList"></div>
+    <head>
+        <link rel="stylesheet" href="style.css" />
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>cometclock 💫</title>
+    </head>
+    <body>
+        <main class="app-shell">
+            <div class="top-bar">
+                <button onClick="lightMode()" type="button" id="lightMode">
+                    🌕
+                </button>
+            </div>
+            <h1>cometclock 💫</h1>
+            <div class="controls">
+                <button
+                    class="control-btn"
+                    onClick="addAssignmentButtonClicked()"
+                    type="button"
+                    title="Add task"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M5 12h14" />
+                        <path d="M12 5v14" />
+                    </svg>
+                </button>
+                <button
+                    class="control-btn"
+                    onClick="exportTasks()"
+                    type="button"
+                    title="Export tasks"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path
+                            d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"
+                        />
+                        <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+                        <path d="M12 12v6" />
+                        <path d="m15 15-3-3-3 3" />
+                    </svg>
+                </button>
+                <button
+                    class="control-btn"
+                    onClick="document.getElementById('importFile').click()"
+                    type="button"
+                    title="Import tasks"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path
+                            d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"
+                        />
+                        <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+                        <path d="M12 18v-6" />
+                        <path d="m9 15 3 3 3-3" />
+                    </svg>
+                </button>
+                <input
+                    id="importFile"
+                    type="file"
+                    accept="application/json"
+                    style="display: none"
+                />
+                <label for="sortMode">Sort By:</label>
+                <select id="sortMode">
+                    <option value="due">Due Date</option>
+                    <option value="name">Name</option>
+                    <option value="created">Date Created</option>
+                </select>
+                <button
+                    class="control-btn"
+                    id="sortDirectionButton"
+                    type="button"
+                    title="Toggle sort direction"
+                >
+                    ⬇️
+                </button>
+            </div>
+            <div id="taskList"></div>
 
-      <div id="creationWindow" class="modal">
-        <div class="modal-content">
-          <h3>Create Task</h3>
+            <div id="creationWindow" class="modal">
+                <div class="modal-content">
+                    <h3>Create Task</h3>
 
-          <label for="nameInput">Task Name</label>
-          <input id="nameInput" type="text" placeholder="Task Name" />
+                    <label for="nameInput">Task Name</label>
+                    <input id="nameInput" type="text" placeholder="Task Name" />
 
-          <label for="dueDate">Due Date</label>
-          <input id="dueDate" type="date" placeholder="Due Date" />
+                    <label for="dueDate">Due Date</label>
+                    <input id="dueDate" type="date" placeholder="Due Date" />
 
-          <label for="dueTime">Due Time</label>
-          <input id="dueTime" type="time" placeholder="Time Due" />
+                    <label for="dueTime">Due Time</label>
+                    <input id="dueTime" type="time" placeholder="Time Due" />
 
-          <div class="modal-actions">
-            <button onClick="createTask()" type="button">Create</button>
-            <button onClick="closeCreateTaskModal()" type="button">
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
+                    <div class="modal-actions">
+                        <button onClick="createTask()" type="button">
+                            Create
+                        </button>
+                        <button onClick="closeCreateTaskModal()" type="button">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
 
-      <div id="taskModal" class="modal">
-        <div class="modal-content">
-          <h3>Task Details</h3>
+            <div id="taskModal" class="modal">
+                <div class="modal-content">
+                    <h3>Task Details</h3>
 
-          <label for="modalTaskName">Task Name</label>
-          <input id="modalTaskName" type="text" placeholder="Task Name" />
+                    <label for="modalTaskName">Task Name</label>
+                    <input
+                        id="modalTaskName"
+                        type="text"
+                        placeholder="Task Name"
+                    />
 
-          <label for="modalDueDate">Due Date</label>
-          <input id="modalDueDate" type="date" />
+                    <label for="modalDueDate">Due Date</label>
+                    <input id="modalDueDate" type="date" />
 
-          <label for="modalDueTime">Due Time</label>
-          <input id="modalDueTime" type="time" />
+                    <label for="modalDueTime">Due Time</label>
+                    <input id="modalDueTime" type="time" />
 
-          <label for="modalTaskNotes">Notes</label>
-          <textarea
-            id="modalTaskNotes"
-            placeholder="Add Notes Here..."
-          ></textarea>
+                    <label for="modalTaskNotes">Notes</label>
+                    <textarea
+                        id="modalTaskNotes"
+                        placeholder="Add Notes Here..."
+                    ></textarea>
 
-          <div class="modal-actions">
-            <button type="button" onClick="saveTaskEdits()">Save</button>
-            <button type="button" onClick="closeTaskModal()">Close</button>
-          </div>
-        </div>
-      </div>
+                    <div class="modal-actions">
+                        <button type="button" onClick="saveTaskEdits()">
+                            Save
+                        </button>
+                        <button type="button" onClick="closeTaskModal()">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
 
-      <p id="tag">made with ❤️ by christian reid</p>
-    </main>
-    <script src="script.js"></script>
-  </body>
+            <p id="tag">made with ❤️ by christian reid</p>
+        </main>
+        <script src="script.js"></script>
+    </body>
 </html>

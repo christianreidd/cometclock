@@ -1,191 +1,191 @@
 @import url("https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap");
 
 body {
-  font-family: "Lato", sans-serif;
-  background-color: #4a2e63;
-  color: #ffffff;
-  margin: 0;
-  padding: 12px;
-  box-sizing: border-box;
-  overflow-x: hidden;
-  min-height: 100vh;
+    font-family: "Lato", sans-serif;
+    background-color: #4a2e63;
+    color: #ffffff;
+    margin: 0;
+    padding: 12px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    min-height: 100vh;
 }
 
 .app-shell {
-  width: min(760px, 100%);
-  margin: 0 auto;
-  box-sizing: border-box;
+    width: min(760px, 100%);
+    margin: 0 auto;
+    box-sizing: border-box;
 }
 
 body.light-mode {
-  background-color: #7d58a3;
-  color: #000000;
+    background-color: #7d58a3;
+    color: #000000;
 }
 
 h1 {
-  color: white;
-  text-align: center;
+    color: white;
+    text-align: center;
 }
 
 .top-bar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 8px;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 8px;
 }
 
 #taskList {
-  margin-top: 20px;
+    margin-top: 20px;
 }
 
 .empty-state {
-  white-space: pre-line;
-  padding: 12px 0;
-  line-height: 1.5;
+    white-space: pre-line;
+    padding: 12px 0;
+    line-height: 1.5;
 }
 
 .task-item {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  text-align: left;
-  margin: 8px 0;
-  padding: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.08);
-  color: inherit;
-  cursor: default;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+    margin: 8px 0;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: inherit;
+    cursor: default;
 }
 
 .task-content {
-  flex: 1;
-  min-width: 0;
-  overflow-wrap: anywhere;
-  white-space: pre-line;
-  line-height: 1.45;
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+    line-height: 1.45;
 }
 
 .task-action-buttons {
-  display: flex;
-  gap: 6px;
-  flex-shrink: 0;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
 }
 
 .task-item:hover .task-action-buttons,
 .task-item:focus-within .task-action-buttons {
-  opacity: 1;
-  pointer-events: auto;
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .task-action-btn,
 .control-btn {
-  border: 0;
-  border-radius: 6px;
-  padding: 6px 8px;
-  background: rgba(255, 255, 255, 0.16);
-  color: inherit;
-  cursor: pointer;
+    border: 0;
+    border-radius: 6px;
+    padding: 6px 8px;
+    background: rgba(255, 255, 255, 0.16);
+    color: inherit;
+    cursor: pointer;
 }
 
 .task-action-btn.delete-btn,
 .task-action-btn.complete-btn {
-  background: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.16);
 }
 
 .task-item.completed {
-  color: #00ff00;
-  border-color: rgba(22, 163, 74, 0.45);
-  background: rgba(22, 163, 74, 0.12);
+    color: #00ff00;
+    border-color: rgba(22, 163, 74, 0.45);
+    background: rgba(22, 163, 74, 0.12);
 }
 
 .task-item.overdue {
-  color: #ff4d4d;
-  border-color: rgba(255, 77, 77, 0.45);
-  background: rgba(255, 77, 77, 0.12);
+    color: #ff4d4d;
+    border-color: rgba(255, 77, 77, 0.45);
+    background: rgba(255, 77, 77, 0.12);
 }
 
 .task-item.due-soon {
-  color: #ff9c47;
-  border-color: rgba(255, 156, 71, 0.45);
-  background: rgba(255, 156, 71, 0.12);
+    color: #ff9c47;
+    border-color: rgba(255, 156, 71, 0.45);
+    background: rgba(255, 156, 71, 0.12);
 }
 
 #lightMode {
-  text-align: right;
+    text-align: right;
 }
 
 .controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-  max-width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    max-width: 100%;
 }
 
 #creationWindow.modal {
-  display: none;
+    display: none;
 }
 
 #creationWindow.modal.open {
-  display: flex;
+    display: flex;
 }
 
 .modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  z-index: 1000;
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 1000;
 }
 
 .modal.open {
-  display: flex;
+    display: flex;
 }
 
 .modal-content {
-  width: min(560px, 100%);
-  background: #ffffff;
-  color: #111827;
-  border-radius: 12px;
-  padding: 16px;
-  display: grid;
-  gap: 10px;
+    width: min(560px, 100%);
+    background: #ffffff;
+    color: #111827;
+    border-radius: 12px;
+    padding: 16px;
+    display: grid;
+    gap: 10px;
 }
 
 .modal-content input,
 .modal-content textarea {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
 }
 
 .modal-content textarea {
-  min-height: 90px;
-  resize: vertical;
+    min-height: 90px;
+    resize: vertical;
 }
 
 .checkbox-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .modal-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 #tag {
-  text-align: end;
+    text-align: end;
 }
