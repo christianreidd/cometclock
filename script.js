@@ -2,7 +2,7 @@ let taskList = [];
 let currentSortField = "due";
 let currentSortDirection = "asc";
 let selectedTaskId = null;
-const APP_VERSION = "v0.1.6";
+const APP_VERSION = "cometclock v0.1.7";
 let userSettings = {
     theme: "dark",
     showSeconds: true,
@@ -25,12 +25,10 @@ window.addEventListener("DOMContentLoaded", async () => {
         sortDirectionButton.addEventListener("click", () => {
             currentSortDirection =
                 currentSortDirection === "asc" ? "desc" : "asc";
-            sortDirectionButton.textContent =
-                currentSortDirection === "asc" ? "⬇️" : "⬆️";
+            updateSortDirectionButton(sortDirectionButton);
             renderTasks();
         });
-        sortDirectionButton.textContent =
-            currentSortDirection === "asc" ? "⬇️" : "⬆️";
+        updateSortDirectionButton(sortDirectionButton);
     }
 
     await loadSettings();
@@ -206,6 +204,15 @@ async function toggleTheme() {
     userSettings.theme = userSettings.theme === "dark" ? "light" : "dark";
     applyTheme();
     await saveSettings();
+}
+
+function updateSortDirectionButton(button) {
+    if (!button) return;
+
+    button.innerHTML =
+        currentSortDirection === "asc"
+            ? `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-down-icon lucide-arrow-down"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>`
+            : `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-icon lucide-arrow-up"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>`;
 }
 
 function getLocalDateValue(referenceDate = new Date()) {

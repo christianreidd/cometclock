@@ -119,7 +119,7 @@
                     type="button"
                     title="Toggle sort direction"
                 >
-                    ⬇️
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-down-icon lucide-arrow-down"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
                 </button>
             </div>
             <div id="taskList"></div>
@@ -162,23 +162,21 @@
                 <div class="modal-content">
                     <h3>Info</h3>
 
-                    <div class="setting-row">
+                    <div class="setting-row info-version-row">
                         <div>
                             <strong>Version</strong>
                             <p id="infoVersion"></p>
                         </div>
                     </div>
 
-                    <div class="setting-row">
-                        <div>
-                            <strong>Made with love</strong>
-                            <p>made with ❤️ by christian reid</p>
-                        </div>
+                    <div class="modal-actions info-actions">
+                        <button type="button" onClick="closeInfoModal()">
+                            Close
+                        </button>
                     </div>
 
-                    <div class="modal-actions">
-                        <button type="button" onClick="closeInfoModal()">Close</button>
-                    </div>
+                    <div class="info-footer">made with ❤️ by christian reid</div>
+
                 </div>
             </div>
 
