@@ -97,7 +97,28 @@ function noAssignmentsText() {
     }
 }
 
+function getLocalDateValue(referenceDate = new Date()) {
+    const year = referenceDate.getFullYear();
+    const month = String(referenceDate.getMonth() + 1).padStart(2, "0");
+    const day = String(referenceDate.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+function setCreateTaskDefaults() {
+    const dueDateInput = document.getElementById("dueDate");
+    const dueTimeInput = document.getElementById("dueTime");
+
+    if (dueDateInput) {
+        dueDateInput.value = getLocalDateValue();
+    }
+
+    if (dueTimeInput) {
+        dueTimeInput.value = "23:59";
+    }
+}
+
 function addAssignmentButtonClicked() {
+    setCreateTaskDefaults();
     document.getElementById("creationWindow").classList.add("open");
 }
 
