@@ -9,8 +9,14 @@
     <body>
         <main class="app-shell">
             <div class="top-bar">
-                <button onClick="lightMode()" type="button" id="lightMode">
-                    🌕
+                <button
+                    class="control-btn"
+                    onClick="openSettingsModal()"
+                    type="button"
+                    id="settingsButton"
+                    title="Settings"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>
                 </button>
             </div>
             <h1>cometclock 💫</h1>
@@ -108,6 +114,40 @@
                 </button>
             </div>
             <div id="taskList"></div>
+
+            <div id="settingsModal" class="modal">
+                <div class="modal-content">
+                    <h3>Settings</h3>
+
+                    <div class="setting-row">
+                        <div>
+                            <strong>Theme</strong>
+                            <p>Swap between light and dark mode.</p>
+                        </div>
+                        <button
+                            class="control-btn"
+                            type="button"
+                            id="themeToggleButton"
+                            onClick="toggleTheme()"
+                            title="Toggle theme"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon-icon lucide-moon"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+                        </button>
+                    </div>
+
+                    <label class="setting-row setting-switch" for="showSecondsToggle">
+                        <div>
+                            <strong>Show seconds</strong>
+                            <p>Display seconds in countdown text.</p>
+                        </div>
+                        <input id="showSecondsToggle" type="checkbox" />
+                    </label>
+
+                    <div class="modal-actions">
+                        <button type="button" onClick="closeSettingsModal()">Close</button>
+                    </div>
+                </div>
+            </div>
 
             <div id="creationWindow" class="modal">
                 <div class="modal-content">

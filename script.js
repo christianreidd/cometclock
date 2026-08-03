@@ -2,6 +2,10 @@ let taskList = [];
 let currentSortField = "due";
 let currentSortDirection = "asc";
 let selectedTaskId = null;
+let userSettings = {
+    theme: "dark",
+    showSeconds: true,
+};
 
 let autoRefreshIntervalId = null;
 
@@ -28,6 +32,7 @@ window.addEventListener("DOMContentLoaded", async () => {
             currentSortDirection === "asc" ? "⬇️" : "⬆️";
     }
 
+    await loadSettings();
     await loadTasks();
     startAutoRefresh();
 });
@@ -67,6 +72,27 @@ const storageAdapter = {
     },
 };
 
+const settingsAdapter = {
+    key: "cometclock.settings",
+    async load() {
+        try {
+            const raw = localStorage.getItem(this.key);
+            if (!raw) return null;
+            return JSON.parse(raw);
+        } catch (e) {
+            console.warn("Failed to load settings from localStorage", e);
+            return null;
+        }
+    },
+    async save(settings) {
+        try {
+            localStorage.setItem(this.key, JSON.stringify(settings));
+        } catch (e) {
+            console.warn("Failed to save settings to localStorage", e);
+        }
+    },
+};
+
 // Ensure a task object has the expected fields (migration helper)
 function ensureTaskShape(t) {
     const makeId = () =>
@@ -95,6 +121,78 @@ function noAssignmentsText() {
             'You have no assignments! 🎉<br>Click "+" to create one';
         container.appendChild(emptyState);
     }
+}
+
+function applyTheme() {
+    const isLight = userSettings.theme === "light";
+    document.body.classList.toggle("light-mode", isLight);
+
+    const themeToggleButton = document.getElementById("themeToggleButton");
+    if (themeToggleButton) {
+        themeToggleButton.innerHTML = isLight
+            ? `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun-icon lucide-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`
+            : `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon-icon lucide-moon"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>`;
+    }
+}
+
+function getDurationText(timeLeft, includeSeconds = true) {
+    const absoluteTimeLeft = Math.max(0, Math.abs(timeLeft));
+    const days = Math.floor(absoluteTimeLeft / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(absoluteTimeLeft / (1000 * 60 * 60)) % 24;
+    const minutes = Math.floor(absoluteTimeLeft / (1000 * 60)) % 60;
+    const seconds = Math.floor(absoluteTimeLeft / 1000) % 60;
+
+    const parts = [
+        `${days}d`,
+        `${hours}h`,
+        `${minutes}m`,
+    ];
+
+    if (includeSeconds) {
+        parts.push(`${seconds}s`);
+    }
+
+    return parts.join(" ");
+}
+
+async function loadSettings() {
+    const savedSettings = await settingsAdapter.load();
+    if (savedSettings && typeof savedSettings === "object") {
+        userSettings = {
+            ...userSettings,
+            ...savedSettings,
+        };
+    }
+
+    const showSecondsToggle = document.getElementById("showSecondsToggle");
+    if (showSecondsToggle) {
+        showSecondsToggle.checked = Boolean(userSettings.showSeconds);
+        showSecondsToggle.addEventListener("change", async (event) => {
+            userSettings.showSeconds = event.target.checked;
+            await settingsAdapter.save(userSettings);
+            renderTasks();
+        });
+    }
+
+    applyTheme();
+}
+
+async function saveSettings() {
+    await settingsAdapter.save(userSettings);
+}
+
+function openSettingsModal() {
+    document.getElementById("settingsModal").classList.add("open");
+}
+
+function closeSettingsModal() {
+    document.getElementById("settingsModal").classList.remove("open");
+}
+
+async function toggleTheme() {
+    userSettings.theme = userSettings.theme === "dark" ? "light" : "dark";
+    applyTheme();
+    await saveSettings();
 }
 
 function getLocalDateValue(referenceDate = new Date()) {
@@ -160,18 +258,15 @@ function renderTasks() {
             taskText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (Done!)`;
         } else if (timeLeft < 0) {
             el.classList.add("overdue");
-            const units = timeUnits(Math.abs(timeLeft));
             prefix = "❌ ";
-            taskText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (Overdue by ${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s)`;
+            taskText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (Overdue by ${getDurationText(timeLeft, userSettings.showSeconds)})`;
         } else if (timeLeft <= 3 * 24 * 60 * 60 * 1000) {
             el.classList.add("due-soon");
-            const units = timeUnits(timeLeft);
             prefix = "⏰ ";
-            taskText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s remaining)`;
+            taskText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (${getDurationText(timeLeft, userSettings.showSeconds)} remaining)`;
         } else {
-            const units = timeUnits(timeLeft);
             prefix = "";
-            taskText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (${units.days}d ${units.hours}h ${units.minutes}m ${units.seconds}s remaining)`;
+            taskText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (${getDurationText(timeLeft, userSettings.showSeconds)} remaining)`;
         }
 
         const content = document.createElement("div");
