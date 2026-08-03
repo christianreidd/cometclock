@@ -2,6 +2,7 @@ let taskList = [];
 let currentSortField = "due";
 let currentSortDirection = "asc";
 let selectedTaskId = null;
+const APP_VERSION = "v0.1.6";
 let userSettings = {
     theme: "dark",
     showSeconds: true,
@@ -33,6 +34,10 @@ window.addEventListener("DOMContentLoaded", async () => {
     }
 
     await loadSettings();
+    const infoVersion = document.getElementById("infoVersion");
+    if (infoVersion) {
+        infoVersion.textContent = APP_VERSION;
+    }
     await loadTasks();
     startAutoRefresh();
 });
@@ -187,6 +192,14 @@ function openSettingsModal() {
 
 function closeSettingsModal() {
     document.getElementById("settingsModal").classList.remove("open");
+}
+
+function openInfoModal() {
+    document.getElementById("infoModal").classList.add("open");
+}
+
+function closeInfoModal() {
+    document.getElementById("infoModal").classList.remove("open");
 }
 
 async function toggleTheme() {

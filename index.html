@@ -11,6 +11,15 @@
             <div class="top-bar">
                 <button
                     class="control-btn"
+                    onClick="openInfoModal()"
+                    type="button"
+                    id="infoButton"
+                    title="Info"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info-icon lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                </button>
+                <button
+                    class="control-btn"
                     onClick="openSettingsModal()"
                     type="button"
                     id="settingsButton"
@@ -149,6 +158,30 @@
                 </div>
             </div>
 
+            <div id="infoModal" class="modal">
+                <div class="modal-content">
+                    <h3>Info</h3>
+
+                    <div class="setting-row">
+                        <div>
+                            <strong>Version</strong>
+                            <p id="infoVersion"></p>
+                        </div>
+                    </div>
+
+                    <div class="setting-row">
+                        <div>
+                            <strong>Made with love</strong>
+                            <p>made with ❤️ by christian reid</p>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" onClick="closeInfoModal()">Close</button>
+                    </div>
+                </div>
+            </div>
+
             <div id="creationWindow" class="modal">
                 <div class="modal-content">
                     <h3>Create Task</h3>
@@ -207,7 +240,6 @@
                 </div>
             </div>
 
-            <p id="tag">made with ❤️ by christian reid</p>
         </main>
         <script src="script.js"></script>
     </body>
