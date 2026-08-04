@@ -326,16 +326,18 @@ function renderTasks() {
 function buildTaskText(task) {
     const timeLeft = timeRemaining(task);
     const dateString = convertDate(task);
+    const dueInfo = `Due on the ${dateString} at ${convertTime(task)}`;
+    const taskName = `<strong>${task.name}</strong>`;
 
     if (task.completed) {
-        return `✅ ${task.name} - Due on the ${dateString} at ${convertTime(task)} (Done!)`;
+        return `✅ ${taskName}\n${dueInfo} (Done!)`;
     }
 
     if (timeLeft < 0) {
-        return `❌ ${task.name} - Due on the ${dateString} at ${convertTime(task)} (Overdue by ${getDurationText(timeLeft, userSettings.showSeconds)})`;
+        return `❌ ${taskName}\n${dueInfo} (Overdue by ${getDurationText(timeLeft, userSettings.showSeconds)})`;
     }
 
-    return `${timeLeft <= 3 * 24 * 60 * 60 * 1000 ? "⏰ " : ""}${task.name} - Due on the ${dateString} at ${convertTime(task)} (${getDurationText(timeLeft, userSettings.showSeconds)} remaining)`;
+    return `${timeLeft <= 3 * 24 * 60 * 60 * 1000 ? "⏰ " : ""}${taskName}\n${dueInfo} (${getDurationText(timeLeft, userSettings.showSeconds)} remaining)`;
 }
 
 function updateTaskItemState(el, task) {
