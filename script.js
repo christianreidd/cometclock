@@ -2,7 +2,7 @@ let taskList = [];
 let currentSortField = "due";
 let currentSortDirection = "asc";
 let selectedTaskId = null;
-const APP_VERSION = "cometclock v0.1.7";
+const APP_VERSION = "cometclock v0.1.8";
 let userSettings = {
     theme: "dark",
     showSeconds: true,
@@ -43,7 +43,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 function startAutoRefresh() {
     if (autoRefreshIntervalId) return;
     autoRefreshIntervalId = setInterval(() => {
-        renderTasks();
+        refreshTaskCountdowns();
     }, 1000);
 }
 
@@ -265,29 +265,13 @@ function renderTasks() {
     sortedTasks.forEach((task) => {
         const el = document.createElement("div");
         el.className = "task-item";
+        el.dataset.taskId = task.id;
         if (task.completed) {
             el.classList.add("completed");
         }
 
-        const timeLeft = timeRemaining(task);
-        const dateString = convertDate(task);
-        let prefix = "";
-        let taskText = "";
-        if (task.completed) {
-            prefix = "✅ ";
-            taskText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (Done!)`;
-        } else if (timeLeft < 0) {
-            el.classList.add("overdue");
-            prefix = "❌ ";
-            taskText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (Overdue by ${getDurationText(timeLeft, userSettings.showSeconds)})`;
-        } else if (timeLeft <= 3 * 24 * 60 * 60 * 1000) {
-            el.classList.add("due-soon");
-            prefix = "⏰ ";
-            taskText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (${getDurationText(timeLeft, userSettings.showSeconds)} remaining)`;
-        } else {
-            prefix = "";
-            taskText = `${prefix}${task.name} - Due on the ${dateString} at ${convertTime(task)} (${getDurationText(timeLeft, userSettings.showSeconds)} remaining)`;
-        }
+        const taskText = buildTaskText(task);
+        updateTaskItemState(el, task);
 
         const content = document.createElement("div");
         content.className = "task-content";
@@ -336,6 +320,48 @@ function renderTasks() {
         el.appendChild(content);
         el.appendChild(actions);
         container.appendChild(el);
+    });
+}
+
+function buildTaskText(task) {
+    const timeLeft = timeRemaining(task);
+    const dateString = convertDate(task);
+
+    if (task.completed) {
+        return `✅ ${task.name} - Due on the ${dateString} at ${convertTime(task)} (Done!)`;
+    }
+
+    if (timeLeft < 0) {
+        return `❌ ${task.name} - Due on the ${dateString} at ${convertTime(task)} (Overdue by ${getDurationText(timeLeft, userSettings.showSeconds)})`;
+    }
+
+    return `${timeLeft <= 3 * 24 * 60 * 60 * 1000 ? "⏰ " : ""}${task.name} - Due on the ${dateString} at ${convertTime(task)} (${getDurationText(timeLeft, userSettings.showSeconds)} remaining)`;
+}
+
+function updateTaskItemState(el, task) {
+    const timeLeft = timeRemaining(task);
+    el.classList.toggle("completed", task.completed);
+    el.classList.toggle("overdue", !task.completed && timeLeft < 0);
+    el.classList.toggle(
+        "due-soon",
+        !task.completed && timeLeft >= 0 && timeLeft <= 3 * 24 * 60 * 60 * 1000,
+    );
+}
+
+function refreshTaskCountdowns() {
+    const container = document.getElementById("taskList");
+    if (!container) return;
+
+    taskList.forEach((task) => {
+        const el = container.querySelector(`[data-task-id="${task.id}"]`);
+        if (!el) return;
+
+        updateTaskItemState(el, task);
+
+        const content = el.querySelector(".task-content");
+        if (content) {
+            content.innerHTML = buildTaskText(task).replace(/\n/g, "<br>");
+        }
     });
 }
 
