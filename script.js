@@ -614,7 +614,7 @@ function convertDate(taskInfo) {
     const dateArray = taskInfo.dueDate.split("-");
     const year = dateArray[0];
     const month = monthNames[dateArray[1]];
-    const day = dateArray[2];
+    const day = Number(dateArray[2]);
 
     return `${day}${daySuffix(day)} of ${month} ${year}`;
 }
@@ -639,13 +639,13 @@ function convertTime(taskInfo) {
 
 function daySuffix(day) {
     let suffix;
-    if (day === "11" || day === "12" || day === "13") {
+    if (day === 11 || day === 12 || day === 13) {
         suffix = "th";
-    } else if (day.slice(-1) === "1") {
+    } else if (day % 10 === 1) {
         suffix = "st";
-    } else if (day.slice(-1) === "2") {
+    } else if (day % 10 === 2) {
         suffix = "nd";
-    } else if (day.slice(-1) === "3") {
+    } else if (day % 10 === 3) {
         suffix = "rd";
     } else {
         suffix = "th";
