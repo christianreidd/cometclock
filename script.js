@@ -110,6 +110,11 @@ function ensureTaskShape(t) {
         dateAdded: t.dateAdded || new Date().toISOString(),
         notes: t.notes || "",
         completed: Boolean(t.completed),
+        recurrenceId: t.recurrenceId || "",
+        recurrence: t.recurrence || "none",
+        recurrenceInterval: Number.isInteger(t.recurrenceInterval)
+            ? t.recurrenceInterval
+            : 1,
     };
 }
 
@@ -225,6 +230,8 @@ function getLocalDateValue(referenceDate = new Date()) {
 function setCreateTaskDefaults() {
     const dueDateInput = document.getElementById("dueDate");
     const dueTimeInput = document.getElementById("dueTime");
+    const recurrenceInput = document.getElementById("recurrence");
+    const recurrenceEndDateInput = document.getElementById("recurrenceEndDate");
 
     if (dueDateInput) {
         dueDateInput.value = getLocalDateValue();
@@ -232,6 +239,42 @@ function setCreateTaskDefaults() {
 
     if (dueTimeInput) {
         dueTimeInput.value = "23:59";
+    }
+
+    if (recurrenceInput) {
+        recurrenceInput.value = "none";
+    }
+
+    if (recurrenceEndDateInput) {
+        recurrenceEndDateInput.value = "";
+    }
+
+    toggleRecurrenceEndDate();
+}
+
+function toggleRecurrenceEndDate() {
+    const recurrenceInput = document.getElementById("recurrence");
+    const endDateRow = document.getElementById("recurrenceEndDateRow");
+    const customRecurrenceRow = document.getElementById("customRecurrenceRow");
+    const endDateInput = document.getElementById("recurrenceEndDate");
+    const intervalInput = document.getElementById("recurrenceInterval");
+    const isRecurring = recurrenceInput && recurrenceInput.value !== "none";
+    const isCustom = recurrenceInput && recurrenceInput.value === "custom";
+
+    if (endDateRow) {
+        endDateRow.hidden = !isRecurring;
+    }
+
+    if (endDateInput) {
+        endDateInput.required = Boolean(isRecurring);
+    }
+
+    if (customRecurrenceRow) {
+        customRecurrenceRow.hidden = !isCustom;
+    }
+
+    if (intervalInput) {
+        intervalInput.required = Boolean(isCustom);
     }
 }
 
@@ -283,7 +326,8 @@ function renderTasks() {
         const editButton = document.createElement("button");
         editButton.type = "button";
         editButton.className = "task-action-btn";
-        editButton.title = "Edit task";
+        editButton.setAttribute("aria-label", "Edit task");
+        editButton.dataset.tooltip = "Edit task";
         editButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>`;
         editButton.addEventListener("click", (event) => {
             event.stopPropagation();
@@ -293,7 +337,8 @@ function renderTasks() {
         const deleteButton = document.createElement("button");
         deleteButton.type = "button";
         deleteButton.className = "task-action-btn delete-btn";
-        deleteButton.title = "Delete task";
+        deleteButton.setAttribute("aria-label", "Delete task");
+        deleteButton.dataset.tooltip = "Delete task";
         deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
         deleteButton.addEventListener("click", async (event) => {
             event.stopPropagation();
@@ -303,9 +348,11 @@ function renderTasks() {
         const completeButton = document.createElement("button");
         completeButton.type = "button";
         completeButton.className = "task-action-btn complete-btn";
-        completeButton.title = task.completed
+        const completionLabel = task.completed
             ? "Mark as not complete"
             : "Mark as complete";
+        completeButton.setAttribute("aria-label", completionLabel);
+        completeButton.dataset.tooltip = completionLabel;
         completeButton.innerHTML = task.completed
             ? `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>`
             : `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>`;
@@ -396,40 +443,117 @@ async function saveTasks() {
     await storageAdapter.save(taskList);
 }
 
-function createTask() {
-    const assignmentName = document.getElementById("nameInput").value;
+async function createTask() {
+    const assignmentName = document.getElementById("nameInput").value.trim();
     const assignmentDate = document.getElementById("dueDate").value;
     const assignmentTime = document.getElementById("dueTime").value;
+    const recurrence = document.getElementById("recurrence").value;
+    const recurrenceEndDate =
+        document.getElementById("recurrenceEndDate").value;
+    const recurrenceInterval = Number.parseInt(
+        document.getElementById("recurrenceInterval").value,
+        10,
+    );
 
     const makeId = () =>
         typeof crypto !== "undefined" && crypto.randomUUID
             ? crypto.randomUUID()
             : `t-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-    const taskInfo = {
-        id: makeId(),
-        name: assignmentName,
-        dueDate: assignmentDate,
-        dueTime: assignmentTime,
-        dateAdded: new Date().toISOString(),
-        notes: "",
-        completed: false,
-    };
-
     if (!assignmentName) {
         alert("Task Name cannot be empty.");
         return;
     }
 
+    if (!assignmentDate || !assignmentTime) {
+        alert("Due date and time are required.");
+        return;
+    }
+
+    if (recurrence !== "none" && !recurrenceEndDate) {
+        alert("Choose an end date for the recurring task.");
+        return;
+    }
+
+    if (
+        recurrence === "custom" &&
+        (!Number.isInteger(recurrenceInterval) || recurrenceInterval < 1)
+    ) {
+        alert("The custom interval must be a whole number of at least 1 day.");
+        return;
+    }
+
+    if (
+        recurrence !== "none" &&
+        new Date(`${recurrenceEndDate}T00:00`) <
+            new Date(`${assignmentDate}T00:00`)
+    ) {
+        alert("The recurrence end date must be on or after the first due date.");
+        return;
+    }
+
+    const recurrenceId = recurrence === "none" ? "" : makeId();
+    const tasksToCreate = [];
+    let occurrenceDate = new Date(`${assignmentDate}T00:00`);
+    const monthlyDay = occurrenceDate.getDate();
+    const endDate =
+        recurrence === "none"
+            ? occurrenceDate
+            : new Date(`${recurrenceEndDate}T00:00`);
+
+    while (occurrenceDate <= endDate) {
+        tasksToCreate.push({
+            id: makeId(),
+            name: assignmentName,
+            dueDate: getLocalDateValue(occurrenceDate),
+            dueTime: assignmentTime,
+            dateAdded: new Date().toISOString(),
+            notes: "",
+            completed: false,
+            recurrenceId,
+            recurrence,
+            recurrenceInterval: recurrence === "custom" ? recurrenceInterval : 1,
+        });
+
+        if (recurrence === "none") break;
+        if (recurrence === "daily") {
+            occurrenceDate.setDate(occurrenceDate.getDate() + 1);
+        } else if (recurrence === "weekly") {
+            occurrenceDate.setDate(occurrenceDate.getDate() + 7);
+        } else if (recurrence === "fortnightly") {
+            occurrenceDate.setDate(occurrenceDate.getDate() + 14);
+        } else if (recurrence === "monthly") {
+            const nextMonth = occurrenceDate.getMonth() + 1;
+            const lastDayOfNextMonth = new Date(
+                occurrenceDate.getFullYear(),
+                nextMonth + 1,
+                0,
+            ).getDate();
+            occurrenceDate = new Date(
+                occurrenceDate.getFullYear(),
+                nextMonth,
+                Math.min(monthlyDay, lastDayOfNextMonth),
+            );
+        } else {
+            occurrenceDate.setDate(
+                occurrenceDate.getDate() + recurrenceInterval,
+            );
+        }
+    }
+
     if (taskList.length === 0) {
         document.getElementById("taskList").textContent = "";
     }
-    taskList.push(taskInfo);
+    taskList.push(...tasksToCreate);
     document.getElementById("nameInput").value = "";
     document.getElementById("dueDate").value = "";
     document.getElementById("dueTime").value = "";
+    document.getElementById("recurrence").value = "none";
+    document.getElementById("recurrenceEndDate").value = "";
+    document.getElementById("recurrenceInterval").value = "3";
+    toggleRecurrenceEndDate();
     closeCreateTaskModal();
     renderTasks();
-    saveTasks();
+    await saveTasks();
 }
 
 function findTaskById(taskId) {

@@ -14,7 +14,8 @@
                     onClick="openInfoModal()"
                     type="button"
                     id="infoButton"
-                    title="Info"
+                    aria-label="Info"
+                    data-tooltip="Info"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info-icon lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
                 </button>
@@ -23,7 +24,8 @@
                     onClick="openSettingsModal()"
                     type="button"
                     id="settingsButton"
-                    title="Settings"
+                    aria-label="Settings"
+                    data-tooltip="Settings"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>
                 </button>
@@ -34,7 +36,8 @@
                     class="control-btn"
                     onClick="addAssignmentButtonClicked()"
                     type="button"
-                    title="Add task"
+                    aria-label="Add task"
+                    data-tooltip="Add task"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -55,7 +58,8 @@
                     class="control-btn"
                     onClick="exportTasks()"
                     type="button"
-                    title="Export tasks"
+                    aria-label="Export tasks"
+                    data-tooltip="Export tasks"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -80,7 +84,8 @@
                     class="control-btn"
                     onClick="document.getElementById('importFile').click()"
                     type="button"
-                    title="Import tasks"
+                    aria-label="Import tasks"
+                    data-tooltip="Import tasks"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -117,7 +122,8 @@
                     class="control-btn"
                     id="sortDirectionButton"
                     type="button"
-                    title="Toggle sort direction"
+                    aria-label="Toggle sort direction"
+                    data-tooltip="Toggle sort direction"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-down-icon lucide-arrow-down"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
                 </button>
@@ -138,7 +144,8 @@
                             type="button"
                             id="themeToggleButton"
                             onClick="toggleTheme()"
-                            title="Toggle theme"
+                            aria-label="Toggle theme"
+                            data-tooltip="Toggle theme"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon-icon lucide-moon"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
                         </button>
@@ -192,6 +199,29 @@
 
                     <label for="dueTime">Due Time</label>
                     <input id="dueTime" type="time" placeholder="Time Due" />
+
+                    <label for="recurrence">Repeat</label>
+                    <select id="recurrence" onchange="toggleRecurrenceEndDate()">
+                        <option value="none">Does not repeat</option>
+                        <option value="daily">Every day</option>
+                        <option value="weekly">Every week</option>
+                        <option value="fortnightly">Every fortnight</option>
+                        <option value="monthly">Every month</option>
+                        <option value="custom">Custom interval</option>
+                    </select>
+
+                    <div id="recurrenceEndDateRow" class="recurrence-options" hidden>
+                        <div id="customRecurrenceRow" hidden>
+                            <label for="recurrenceInterval">Repeat every</label>
+                            <div class="recurrence-interval">
+                                <input id="recurrenceInterval" type="number" min="1" step="1" value="3" />
+                                <span>days</span>
+                            </div>
+                        </div>
+                        <label for="recurrenceEndDate">Repeat until</label>
+                        <input id="recurrenceEndDate" type="date" />
+                        <small>Each occurrence will be created as a separate task.</small>
+                    </div>
 
                     <div class="modal-actions">
                         <button onClick="createTask()" type="button">

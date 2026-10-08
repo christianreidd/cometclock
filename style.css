@@ -93,12 +93,47 @@ h1 {
 
 .task-action-btn,
 .control-btn {
+    position: relative;
     border: 0;
     border-radius: 6px;
     padding: 6px 8px;
     background: rgba(255, 255, 255, 0.16);
     color: inherit;
     cursor: pointer;
+}
+
+.task-action-btn[data-tooltip]::after,
+.control-btn[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    transform: translate(-50%, 4px);
+    z-index: 1100;
+    padding: 5px 8px;
+    border-radius: 5px;
+    background: #111827;
+    color: #ffffff;
+    font-size: 0.8rem;
+    font-weight: 400;
+    line-height: 1.2;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+        opacity 0.15s ease,
+        transform 0.15s ease,
+        visibility 0.15s ease;
+}
+
+.task-action-btn[data-tooltip]:hover::after,
+.task-action-btn[data-tooltip]:focus-visible::after,
+.control-btn[data-tooltip]:hover::after,
+.control-btn[data-tooltip]:focus-visible::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
 }
 
 .task-action-btn.delete-btn,
@@ -167,6 +202,29 @@ h1 {
     padding: 16px;
     display: grid;
     gap: 10px;
+}
+
+.recurrence-options {
+    display: grid;
+    gap: 10px;
+}
+
+.recurrence-options[hidden] {
+    display: none;
+}
+
+.recurrence-options small {
+    opacity: 0.75;
+}
+
+.recurrence-interval {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.recurrence-interval input {
+    width: 90px;
 }
 
 .setting-row {
