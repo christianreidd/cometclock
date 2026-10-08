@@ -165,6 +165,17 @@ h1 {
     transform: translate(-50%, 0);
 }
 
+.top-bar .control-btn[data-tooltip]::after {
+    top: calc(100% + 8px);
+    bottom: auto;
+    transform: translate(-50%, -4px);
+}
+
+.top-bar .control-btn[data-tooltip]:hover::after,
+.top-bar .control-btn[data-tooltip]:focus-visible::after {
+    transform: translate(-50%, 0);
+}
+
 .task-action-btn.delete-btn,
 .task-action-btn.complete-btn {
     background: rgba(255, 255, 255, 0.16);
