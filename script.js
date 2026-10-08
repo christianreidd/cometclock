@@ -108,7 +108,7 @@ function ensureTaskShape(t) {
         dueDate: t.dueDate || "",
         dueTime: t.dueTime || "",
         dateAdded: t.dateAdded || new Date().toISOString(),
-        notes: t.notes || "",
+        notes: String(t.notes || ""),
         completed: Boolean(t.completed),
         recurrenceId: t.recurrenceId || "",
         recurrence: t.recurrence || "none",
@@ -318,7 +318,38 @@ function renderTasks() {
 
         const content = document.createElement("div");
         content.className = "task-content";
-        content.innerHTML = taskText.replace(/\n/g, "<br>");
+        const hasNote = String(task.notes || "").trim().length > 0;
+        if (hasNote) {
+            content.classList.add("expandable");
+            content.tabIndex = 0;
+            content.setAttribute("role", "button");
+            content.setAttribute("aria-label", `Show note for ${task.name}`);
+            content.setAttribute("aria-expanded", "false");
+        }
+        const summary = document.createElement("div");
+        summary.className = "task-summary";
+        summary.innerHTML = taskText.replace(/\n/g, "<br>");
+
+        if (hasNote) {
+            const note = document.createElement("div");
+            note.className = "task-note";
+            note.hidden = true;
+            note.textContent = task.notes;
+
+            const toggleDetails = () => {
+                const isExpanded = !note.hidden;
+                note.hidden = isExpanded;
+                content.setAttribute("aria-expanded", String(!isExpanded));
+                el.classList.toggle("expanded", !isExpanded);
+            };
+            content.addEventListener("click", toggleDetails);
+            content.addEventListener("keydown", (event) => {
+                if (event.key !== "Enter" && event.key !== " ") return;
+                event.preventDefault();
+                toggleDetails();
+            });
+            content.appendChild(note);
+        }
 
         const actions = document.createElement("div");
         actions.className = "task-action-buttons";
@@ -364,6 +395,7 @@ function renderTasks() {
         actions.appendChild(editButton);
         actions.appendChild(deleteButton);
         actions.appendChild(completeButton);
+        content.prepend(summary);
         el.appendChild(content);
         el.appendChild(actions);
         container.appendChild(el);
@@ -374,7 +406,10 @@ function buildTaskText(task) {
     const timeLeft = timeRemaining(task);
     const dateString = convertDate(task);
     const dueInfo = `Due on the ${dateString} at ${convertTime(task)}`;
-    const taskName = `<strong>${task.name}</strong>`;
+    const noteIndicator = String(task.notes || "").trim()
+        ? '<span class="task-note-indicator" aria-label="Has notes">📎</span> '
+        : "";
+    const taskName = `${noteIndicator}<strong>${task.name}</strong>`;
 
     if (task.completed) {
         return `✅ ${taskName}\n${dueInfo} (Done!)`;
@@ -407,9 +442,9 @@ function refreshTaskCountdowns() {
 
         updateTaskItemState(el, task);
 
-        const content = el.querySelector(".task-content");
-        if (content) {
-            content.innerHTML = buildTaskText(task).replace(/\n/g, "<br>");
+        const summary = el.querySelector(".task-summary");
+        if (summary) {
+            summary.innerHTML = buildTaskText(task).replace(/\n/g, "<br>");
         }
     });
 }
@@ -445,6 +480,9 @@ async function saveTasks() {
 
 async function createTask() {
     const assignmentName = document.getElementById("nameInput").value.trim();
+    const assignmentNotes = document
+        .getElementById("notesInput")
+        .value.trim();
     const assignmentDate = document.getElementById("dueDate").value;
     const assignmentTime = document.getElementById("dueTime").value;
     const recurrence = document.getElementById("recurrence").value;
@@ -507,7 +545,7 @@ async function createTask() {
             dueDate: getLocalDateValue(occurrenceDate),
             dueTime: assignmentTime,
             dateAdded: new Date().toISOString(),
-            notes: "",
+            notes: assignmentNotes,
             completed: false,
             recurrenceId,
             recurrence,
@@ -545,6 +583,7 @@ async function createTask() {
     }
     taskList.push(...tasksToCreate);
     document.getElementById("nameInput").value = "";
+    document.getElementById("notesInput").value = "";
     document.getElementById("dueDate").value = "";
     document.getElementById("dueTime").value = "";
     document.getElementById("recurrence").value = "none";

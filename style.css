@@ -74,6 +74,35 @@ h1 {
     overflow-wrap: anywhere;
     white-space: pre-line;
     line-height: 1.45;
+    cursor: default;
+    border-radius: 5px;
+    outline: none;
+}
+
+.task-content.expandable {
+    cursor: pointer;
+}
+
+.task-content.expandable:focus-visible {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7);
+}
+
+.task-note {
+    margin-top: 10px;
+    padding: 8px 10px;
+    border-left: 3px solid currentColor;
+    background: rgba(255, 255, 255, 0.08);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.task-note[hidden] {
+    display: none;
+}
+
+.task-note-indicator {
+    display: inline-block;
+    margin-right: 2px;
 }
 
 .task-action-buttons {

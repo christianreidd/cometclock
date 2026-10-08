@@ -194,6 +194,12 @@
                     <label for="nameInput">Task Name</label>
                     <input id="nameInput" type="text" placeholder="Task Name" />
 
+                    <label for="notesInput">Notes</label>
+                    <textarea
+                        id="notesInput"
+                        placeholder="Add notes (optional)..."
+                    ></textarea>
+
                     <label for="dueDate">Due Date</label>
                     <input id="dueDate" type="date" placeholder="Due Date" />
 
@@ -202,25 +208,25 @@
 
                     <label for="recurrence">Repeat</label>
                     <select id="recurrence" onchange="toggleRecurrenceEndDate()">
-                        <option value="none">Does not repeat</option>
-                        <option value="daily">Every day</option>
-                        <option value="weekly">Every week</option>
-                        <option value="fortnightly">Every fortnight</option>
-                        <option value="monthly">Every month</option>
-                        <option value="custom">Custom interval</option>
+                        <option value="none">Never</option>
+                        <option value="daily">Every Day</option>
+                        <option value="weekly">Every Week</option>
+                        <option value="fortnightly">Every Fortnight</option>
+                        <option value="monthly">Every Month</option>
+                        <option value="custom">Custom...</option>
                     </select>
 
                     <div id="recurrenceEndDateRow" class="recurrence-options" hidden>
                         <div id="customRecurrenceRow" hidden>
-                            <label for="recurrenceInterval">Repeat every</label>
+                            <label for="recurrenceInterval">Repeat Every</label>
                             <div class="recurrence-interval">
                                 <input id="recurrenceInterval" type="number" min="1" step="1" value="3" />
                                 <span>days</span>
                             </div>
                         </div>
-                        <label for="recurrenceEndDate">Repeat until</label>
+                        <label for="recurrenceEndDate">Repeat Until</label>
                         <input id="recurrenceEndDate" type="date" />
-                        <small>Each occurrence will be created as a separate task.</small>
+                        <small>Each occurrence will be created as a separate task</small>
                     </div>
 
                     <div class="modal-actions">
