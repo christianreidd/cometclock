@@ -272,6 +272,7 @@ async function saveSettings() {
 }
 
 async function resetSettings() {
+    closeResetSettingsConfirmation();
     const currentTheme = userSettings.theme;
     userSettings = {
         theme: currentTheme,
@@ -297,6 +298,18 @@ async function resetSettings() {
     document.getElementById("skipDeletionConfirmationToggle").checked =
         userSettings.skipDeletionConfirmation;
     renderTasks();
+}
+
+function requestResetSettings() {
+    document
+        .getElementById("resetSettingsConfirmationModal")
+        .classList.add("open");
+}
+
+function closeResetSettingsConfirmation() {
+    document
+        .getElementById("resetSettingsConfirmationModal")
+        .classList.remove("open");
 }
 
 function openSettingsModal() {
