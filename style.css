@@ -1,5 +1,16 @@
 @import url("https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap");
 
+:root {
+    --dark-background: #4a2e63;
+    --dark-modal-background: #3f2a52;
+    --light-background: #664785;
+    --light-text: #212121;
+    --dark-text: #ffffff;
+    --dark-modal-text: #f5eff8;
+    --tooltip-background: #111827;
+    --destructive-text: #f87171;
+}
+
 html {
     scrollbar-gutter: stable;
 }
@@ -12,8 +23,8 @@ html {
 body {
     font-family: "Lato", sans-serif;
     font-size: 1.05rem;
-    background-color: #4a2e63;
-    color: #ffffff;
+    background-color: var(--dark-background);
+    color: var(--dark-text);
     margin: 0;
     padding: 12px;
     box-sizing: border-box;
@@ -38,17 +49,17 @@ button svg {
 }
 
 body.light-mode {
-    background-color: #664785;
-    color: #323232;
+    background-color: var(--light-background);
+    color: var(--light-text);
 }
 
 h1 {
-    color: white;
+    color: var(--dark-text);
     text-align: center;
 }
 
 body.light-mode h1 {
-    color: #323232;
+    color: var(--light-text);
     text-align: center;
 }
 
@@ -195,7 +206,8 @@ body.light-mode h1 {
 }
 
 .task-action-btn[data-tooltip]::after,
-.control-btn[data-tooltip]::after {
+.control-btn[data-tooltip]::after,
+.setting-action-btn[data-tooltip]::after {
     content: attr(data-tooltip);
     position: absolute;
     left: 50%;
@@ -204,8 +216,8 @@ body.light-mode h1 {
     z-index: 1100;
     padding: 5px 8px;
     border-radius: 5px;
-    background: #111827;
-    color: #ffffff;
+    background: var(--tooltip-background);
+    color: var(--dark-text);
     font-size: 0.8rem;
     font-weight: 400;
     line-height: 1.2;
@@ -222,10 +234,30 @@ body.light-mode h1 {
 .task-action-btn[data-tooltip]:hover::after,
 .task-action-btn[data-tooltip]:focus-visible::after,
 .control-btn[data-tooltip]:hover::after,
-.control-btn[data-tooltip]:focus-visible::after {
+.control-btn[data-tooltip]:focus-visible::after,
+.setting-action-btn[data-tooltip]:hover::after,
+.setting-action-btn[data-tooltip]:focus-visible::after {
     opacity: 1;
     visibility: visible;
     transform: translate(-50%, 0);
+}
+
+.setting-row .control-btn[data-tooltip]::after,
+.setting-row .setting-action-btn[data-tooltip]::after {
+    left: auto;
+    right: calc(100% + 8px);
+    bottom: auto;
+    top: 50%;
+    transform: translate(4px, -50%);
+}
+
+.setting-row .control-btn[data-tooltip]:hover::after,
+.setting-row .control-btn[data-tooltip]:focus-visible::after,
+.setting-row .setting-action-btn[data-tooltip]:hover::after,
+.setting-row .setting-action-btn[data-tooltip]:focus-visible::after {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translate(0, -50%);
 }
 
 .top-bar .control-btn[data-tooltip]::after {
@@ -310,12 +342,17 @@ body.light-mode h1 {
     transform: translateX(-50px);
     max-height: calc(100vh - 32px);
     overflow: auto hidden;
-    background: #ffffff;
-    color: #111827;
+    background: var(--dark-modal-background);
+    color: var(--dark-modal-text);
     border-radius: 12px;
     padding: 16px;
     display: grid;
     gap: 10px;
+}
+
+body.light-mode .modal-content {
+    background: var(--light-background);
+    color: var(--light-text);
 }
 
 @media (max-width: 599px) {
@@ -453,7 +490,7 @@ body.light-mode h1 {
 }
 
 .setting-row-destructive {
-    color: #f87171;
+    color: var(--destructive-text);
 }
 
 #infoVersion {
@@ -501,12 +538,19 @@ body.light-mode h1 {
     flex-shrink: 0;
 }
 
+#themeToggleButton {
+    border-radius: 0;
+    padding: 0;
+    background: transparent;
+}
+
 .setting-row > .control-btn svg {
     width: 20px;
     height: 20px;
 }
 
 .setting-action-btn {
+    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -518,8 +562,37 @@ body.light-mode h1 {
     border-radius: 0;
     background: transparent;
     color: inherit;
+    cursor: pointer;
     box-sizing: border-box;
     flex-shrink: 0;
+}
+
+.setting-tooltip {
+    position: absolute;
+    right: calc(100% + 8px);
+    top: 50%;
+    z-index: 1100;
+    padding: 5px 8px;
+    border-radius: 5px;
+    background: var(--tooltip-background);
+    color: var(--dark-text);
+    font-size: 0.8rem;
+    font-weight: 400;
+    line-height: 1.2;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(4px, -50%);
+}
+
+.setting-row .control-btn:hover .setting-tooltip,
+.setting-row .control-btn:focus-visible .setting-tooltip,
+.setting-row .setting-action-btn:hover .setting-tooltip,
+.setting-row .setting-action-btn:focus-visible .setting-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(0, -50%);
 }
 
 .setting-action-btn svg {

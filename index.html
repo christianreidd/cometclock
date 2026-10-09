@@ -225,6 +225,7 @@
                             data-tooltip="Toggle Theme"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon-icon lucide-moon"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+                            <span class="setting-tooltip" aria-hidden="true">Toggle Theme</span>
                         </button>
                     </div>
 
@@ -287,10 +288,11 @@
                             class="setting-action-btn"
                             type="button"
                             aria-label="Reset Settings"
-                            data-tooltip="Reset Settings"
+                            data-tooltip="Reset"
                             onClick="resetSettings()"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rotate-ccw preview-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            <span class="setting-tooltip" aria-hidden="true">Reset</span>
                         </button>
                     </div>
 
@@ -303,10 +305,11 @@
                             class="setting-action-btn"
                             type="button"
                             aria-label="Clear All Tasks"
-                            data-tooltip="Clear All Tasks"
+                            data-tooltip="Delete Tasks"
                             onClick="requestClearTasks('all')"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            <span class="setting-tooltip" aria-hidden="true">Delete Tasks</span>
                         </button>
                     </div>
 
@@ -319,10 +322,11 @@
                             class="setting-action-btn"
                             type="button"
                             aria-label="Clear Finished Tasks"
-                            data-tooltip="Clear Finished Tasks"
+                            data-tooltip="Delete Finished Tasks"
                             onClick="requestClearTasks('completed')"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            <span class="setting-tooltip" aria-hidden="true">Delete Finished Tasks</span>
                         </button>
                     </div>
 
