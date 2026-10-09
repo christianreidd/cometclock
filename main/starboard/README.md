@@ -1,10 +1,4 @@
-# cometclock v0.2.9
-
-a free and user-friendly task visualiser
-
-made with ❤️ by christian reid
-
-## starboard
+# Starboard (Planning/Summary)
 
 I'm adding a to-do list feature to my existing assignment tracker, which is plain JavaScript, HTML and CSS (no frameworks) with localStorage persistence.
 
