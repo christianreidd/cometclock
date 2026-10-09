@@ -160,7 +160,7 @@
             </div>
             <div id="taskList"></div>
 
-            <div id="settingsModal" class="modal">
+            <div id="settingsModal" class="modal" data-settings-tab="general">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h3>Settings</h3>
@@ -174,7 +174,44 @@
                         </button>
                     </div>
 
-                    <div class="setting-row">
+                    <div class="settings-tabs" role="tablist" aria-label="Settings categories">
+                        <button
+                            class="settings-tab"
+                            type="button"
+                            role="tab"
+                            aria-selected="true"
+                            aria-controls="generalSettings"
+                            data-settings-tab="general"
+                            onClick="selectSettingsTab('general')"
+                        >
+                            General
+                        </button>
+                        <button
+                            class="settings-tab"
+                            type="button"
+                            role="tab"
+                            aria-selected="false"
+                            aria-controls="timeSettings"
+                            data-settings-tab="time"
+                            onClick="selectSettingsTab('time')"
+                        >
+                            Time
+                        </button>
+                        <button
+                            class="settings-tab"
+                            type="button"
+                            role="tab"
+                            aria-selected="false"
+                            aria-controls="taskSettings"
+                            data-settings-tab="tasks"
+                            onClick="selectSettingsTab('tasks')"
+                        >
+                            Tasks
+                        </button>
+                    </div>
+
+                    <div id="generalSettings" class="settings-tab-panel">
+                    <div class="setting-row" data-settings-panel="general">
                         <div>
                             <strong>Theme</strong>
                             <p>Swap between light and dark mode</p>
@@ -191,7 +228,9 @@
                         </button>
                     </div>
 
-                    <label class="setting-row setting-switch" for="showSecondsToggle">
+                    </div>
+
+                    <label id="timeSettings" class="setting-row setting-switch" data-settings-panel="time" for="showSecondsToggle">
                         <div>
                             <strong>Show Seconds</strong>
                             <p>Display 'seconds' unit in the countdown</p>
@@ -199,7 +238,7 @@
                         <input id="showSecondsToggle" type="checkbox" />
                     </label>
 
-                    <label class="setting-row setting-switch" for="hideEmptyTimeUnitsToggle">
+                    <label class="setting-row setting-switch" data-settings-panel="time" for="hideEmptyTimeUnitsToggle">
                         <div>
                             <strong>Hide Empty Time Units</strong>
                             <p>Hide leading time units when their value is zero</p>
@@ -207,7 +246,7 @@
                         <input id="hideEmptyTimeUnitsToggle" type="checkbox" />
                     </label>
 
-                    <label class="setting-row setting-switch" for="use24HourTimeToggle">
+                    <label class="setting-row setting-switch" data-settings-panel="time" for="use24HourTimeToggle">
                         <div>
                             <strong>Use 24-Hour Time</strong>
                             <p>Display due times using the 24-hour clock</p>
@@ -215,7 +254,7 @@
                         <input id="use24HourTimeToggle" type="checkbox" />
                     </label>
 
-                    <label class="setting-row setting-switch" for="shortDateFormatToggle">
+                    <label id="taskSettings" class="setting-row setting-switch" data-settings-panel="tasks" for="shortDateFormatToggle">
                         <div>
                             <strong>Use Short Due Dates</strong>
                             <p>Display due dates as DD/MM/YY</p>
@@ -223,15 +262,15 @@
                         <input id="shortDateFormatToggle" type="checkbox" />
                     </label>
 
-                    <label class="setting-row setting-switch" for="separateCompletedTasksToggle">
+                    <label class="setting-row setting-switch" data-settings-panel="tasks" for="separateCompletedTasksToggle">
                         <div>
                             <strong>Show Completed Tasks Separately</strong>
-                            <p>Move completed tasks into a separate tab</p>
+                            <p>Show finished tasks in their own tab</p>
                         </div>
                         <input id="separateCompletedTasksToggle" type="checkbox" />
                     </label>
 
-                    <label class="setting-row setting-switch" for="skipDeletionConfirmationToggle">
+                    <label class="setting-row setting-switch" data-settings-panel="tasks" for="skipDeletionConfirmationToggle">
                         <div>
                             <strong>Skip Task Deletion Confirmation</strong>
                             <p>Delete tasks immediately without asking for confirmation</p>
@@ -239,10 +278,10 @@
                         <input id="skipDeletionConfirmationToggle" type="checkbox" />
                     </label>
 
-                    <div class="setting-row">
+                    <div class="setting-row setting-row-destructive" data-settings-panel="general">
                         <div>
                             <strong>Reset Settings</strong>
-                            <p>Restore all settings except the current theme</p>
+                            <p>Reset all settings to default</p>
                         </div>
                         <button
                             class="setting-action-btn"
@@ -255,7 +294,7 @@
                         </button>
                     </div>
 
-                    <div class="setting-row">
+                    <div class="setting-row setting-row-destructive" data-settings-panel="general">
                         <div>
                             <strong>Clear All Tasks</strong>
                             <p>Delete all tasks permanently</p>
@@ -271,7 +310,7 @@
                         </button>
                     </div>
 
-                    <div class="setting-row">
+                    <div class="setting-row setting-row-destructive" data-settings-panel="general">
                         <div>
                             <strong>Clear Finished Tasks</strong>
                             <p>Delete all finished tasks permanently</p>

@@ -369,6 +369,37 @@ body.light-mode h1 {
     background: rgba(17, 24, 39, 0.05);
 }
 
+#settingsModal[data-settings-tab="general"]
+    [data-settings-panel]:not([data-settings-panel="general"]),
+#settingsModal[data-settings-tab="time"]
+    [data-settings-panel]:not([data-settings-panel="time"]),
+#settingsModal[data-settings-tab="tasks"]
+    [data-settings-panel]:not([data-settings-panel="tasks"]) {
+    display: none;
+}
+
+.settings-tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid rgba(17, 24, 39, 0.16);
+}
+
+.settings-tab {
+    border: 0;
+    border-bottom: 2px solid transparent;
+    padding: 8px 12px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+}
+
+.settings-tab[aria-selected="true"] {
+    border-bottom-color: currentColor;
+    background: rgba(17, 24, 39, 0.08);
+    font-weight: 700;
+}
+
 .info-version-row {
     margin-bottom: 6px;
 }
@@ -377,6 +408,10 @@ body.light-mode h1 {
     margin: 4px 0 0;
     font-size: 0.92rem;
     opacity: 0.8;
+}
+
+.setting-row-destructive {
+    color: #f87171;
 }
 
 #infoVersion {

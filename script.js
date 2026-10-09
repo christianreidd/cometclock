@@ -5,7 +5,7 @@ let activeTaskTab = "active";
 let selectedTaskId = null;
 let pendingDeletionTaskId = null;
 let pendingClearTasksMode = null;
-const APP_VERSION = "cometclock v0.2.2";
+const APP_VERSION = "cometclock v0.2.6";
 let userSettings = {
     theme: "dark",
     showSeconds: true,
@@ -300,7 +300,23 @@ async function resetSettings() {
 }
 
 function openSettingsModal() {
-    document.getElementById("settingsModal").classList.add("open");
+    const settingsModal = document.getElementById("settingsModal");
+    settingsModal.classList.add("open");
+    selectSettingsTab(settingsModal.dataset.settingsTab || "general");
+}
+
+function selectSettingsTab(tabName) {
+    const validTabs = ["general", "time", "tasks"];
+    const selectedTab = validTabs.includes(tabName) ? tabName : "general";
+    const settingsModal = document.getElementById("settingsModal");
+
+    settingsModal.dataset.settingsTab = selectedTab;
+    document.querySelectorAll(".settings-tab").forEach((tab) => {
+        tab.setAttribute(
+            "aria-selected",
+            String(tab.dataset.settingsTab === selectedTab),
+        );
+    });
 }
 
 function closeSettingsModal() {
