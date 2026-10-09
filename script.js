@@ -4,6 +4,7 @@ let currentSortDirection = "asc";
 let activeTaskTab = "active";
 let selectedTaskId = null;
 let pendingDeletionTaskId = null;
+let pendingClearTasksMode = null;
 const APP_VERSION = "cometclock v0.2.2";
 let userSettings = {
     theme: "dark",
@@ -268,6 +269,34 @@ async function loadSettings() {
 
 async function saveSettings() {
     await settingsAdapter.save(userSettings);
+}
+
+async function resetSettings() {
+    const currentTheme = userSettings.theme;
+    userSettings = {
+        theme: currentTheme,
+        showSeconds: true,
+        hideEmptyTimeUnits: false,
+        use24HourTime: false,
+        shortDateFormat: false,
+        separateCompletedTasks: false,
+        skipDeletionConfirmation: false,
+    };
+
+    await saveSettings();
+    document.getElementById("showSecondsToggle").checked =
+        userSettings.showSeconds;
+    document.getElementById("hideEmptyTimeUnitsToggle").checked =
+        userSettings.hideEmptyTimeUnits;
+    document.getElementById("use24HourTimeToggle").checked =
+        userSettings.use24HourTime;
+    document.getElementById("shortDateFormatToggle").checked =
+        userSettings.shortDateFormat;
+    document.getElementById("separateCompletedTasksToggle").checked =
+        userSettings.separateCompletedTasks;
+    document.getElementById("skipDeletionConfirmationToggle").checked =
+        userSettings.skipDeletionConfirmation;
+    renderTasks();
 }
 
 function openSettingsModal() {
@@ -775,6 +804,45 @@ function closeTaskModal() {
 function closeDeleteConfirmation() {
     pendingDeletionTaskId = null;
     document.getElementById("deleteConfirmationModal").classList.remove("open");
+}
+
+function requestClearTasks(mode) {
+    pendingClearTasksMode = mode;
+    const isCompleted = mode === "completed";
+    document.getElementById("clearTasksConfirmationTitle").textContent =
+        isCompleted ? "Clear finished tasks?" : "Clear all tasks?";
+    document.getElementById("clearTasksConfirmationText").textContent =
+        isCompleted
+            ? "All completed tasks will be permanently deleted"
+            : "All tasks will be permanently deleted";
+    document
+        .getElementById("clearTasksConfirmationModal")
+        .classList.add("open");
+}
+
+function closeClearTasksConfirmation() {
+    pendingClearTasksMode = null;
+    document
+        .getElementById("clearTasksConfirmationModal")
+        .classList.remove("open");
+}
+
+async function confirmClearTasks() {
+    const mode = pendingClearTasksMode;
+    closeClearTasksConfirmation();
+    if (!mode) return;
+
+    if (mode === "completed") {
+        taskList = taskList.filter((task) => !task.completed);
+    } else {
+        taskList = [];
+    }
+
+    await saveTasks();
+    renderTasks();
+    if (!findTaskById(selectedTaskId)) {
+        closeTaskModal();
+    }
 }
 
 async function confirmTaskDeletion() {

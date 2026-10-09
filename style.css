@@ -283,6 +283,8 @@ body.light-mode h1 {
 
 .modal-content {
     width: min(560px, 100%);
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
     background: #ffffff;
     color: #111827;
     border-radius: 12px;
@@ -423,6 +425,27 @@ body.light-mode h1 {
 }
 
 .setting-row > .control-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.setting-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.setting-action-btn svg {
     width: 18px;
     height: 18px;
 }
