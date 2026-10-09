@@ -5,7 +5,7 @@ let activeTaskTab = "active";
 let selectedTaskId = null;
 let pendingDeletionTaskId = null;
 let pendingClearTasksMode = null;
-const APP_VERSION = "cometclock v0.2.6";
+const APP_VERSION = "cometclock v0.2.7";
 let userSettings = {
     theme: "dark",
     showSeconds: true,

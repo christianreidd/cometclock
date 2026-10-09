@@ -1,4 +1,4 @@
-# cometclock v0.2.6
+# cometclock v0.2.7
 
 a free and user-friendly task visualiser
 
