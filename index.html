@@ -144,7 +144,7 @@
                     aria-selected="true"
                     onClick="selectTaskTab('active')"
                 >
-                    Active
+                    Active <span id="activeTasksCount" class="task-tab-count">0</span>
                 </button>
                 <button
                     id="completedTasksTab"
@@ -155,7 +155,7 @@
                     aria-selected="false"
                     onClick="selectTaskTab('completed')"
                 >
-                    Completed
+                    Completed <span id="completedTasksCount" class="task-tab-count">0</span>
                 </button>
             </div>
             <div id="taskList"></div>
@@ -380,6 +380,53 @@
                         </button>
                         <button type="button" onClick="closeDeleteConfirmation()">
                             Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="importConfirmationModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Replace Current Tasks?</h3>
+                        <button
+                            class="modal-close-btn"
+                            type="button"
+                            aria-label="Close Import Confirmation"
+                            onClick="closeImportConfirmation(false)"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x preview-icon"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
+                    </div>
+                    <p>Replace current tasks with imported tasks? Choose 'Merge' to combine them instead</p>
+                    <div class="modal-actions">
+                        <button type="button" onClick="closeImportConfirmation(true)">
+                            Replace
+                        </button>
+                        <button type="button" onClick="closeImportConfirmation(false)">
+                            Merge
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="importMessageModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="importMessageTitle">Import</h3>
+                        <button
+                            class="modal-close-btn"
+                            type="button"
+                            aria-label="Close Import Message"
+                            onClick="closeImportMessage()"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x preview-icon"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
+                    </div>
+                    <p id="importMessageText"></p>
+                    <div class="modal-actions">
+                        <button type="button" onClick="closeImportMessage()">
+                            Close
                         </button>
                     </div>
                 </div>

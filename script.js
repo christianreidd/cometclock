@@ -4,7 +4,7 @@ let currentSortDirection = "asc";
 let activeTaskTab = "active";
 let selectedTaskId = null;
 let pendingDeletionTaskId = null;
-const APP_VERSION = "cometclock v0.2.0";
+const APP_VERSION = "cometclock v0.2.1";
 let userSettings = {
     theme: "dark",
     showSeconds: true,
@@ -335,15 +335,46 @@ function renderTaskTabs() {
     const tabs = document.getElementById("taskTabs");
     const activeTab = document.getElementById("activeTasksTab");
     const completedTab = document.getElementById("completedTasksTab");
+    const activeCount = document.getElementById("activeTasksCount");
+    const completedCount = document.getElementById("completedTasksCount");
     const showCompletedTab = Boolean(userSettings.separateCompletedTasks);
 
     tabs.hidden = !showCompletedTab;
     completedTab.hidden = !showCompletedTab;
+    activeCount.textContent = taskList.filter((task) => !task.completed).length;
+    completedCount.textContent = taskList.filter((task) => task.completed).length;
     activeTab.setAttribute("aria-selected", String(activeTaskTab === "active"));
     completedTab.setAttribute(
         "aria-selected",
         String(activeTaskTab === "completed"),
     );
+}
+
+let importConfirmationResolver = null;
+
+function closeImportConfirmation(shouldReplace) {
+    document.getElementById("importConfirmationModal").classList.remove("open");
+    if (!importConfirmationResolver) return;
+    const resolve = importConfirmationResolver;
+    importConfirmationResolver = null;
+    resolve(shouldReplace);
+}
+
+function requestImportConfirmation() {
+    return new Promise((resolve) => {
+        importConfirmationResolver = resolve;
+        document.getElementById("importConfirmationModal").classList.add("open");
+    });
+}
+
+function closeImportMessage() {
+    document.getElementById("importMessageModal").classList.remove("open");
+}
+
+function showImportMessage(title, message) {
+    document.getElementById("importMessageTitle").textContent = title;
+    document.getElementById("importMessageText").textContent = message;
+    document.getElementById("importMessageModal").classList.add("open");
 }
 
 function renderTasks() {
@@ -770,31 +801,45 @@ function exportTasks() {
 // Import tasks from a user-selected JSON file. Replaces current tasks by default.
 function importTasksFromFile(file) {
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
         try {
             const parsed = JSON.parse(e.target.result);
             if (!Array.isArray(parsed)) {
-                alert("Imported file must be a JSON array of tasks.");
+                showImportMessage(
+                    "Import failed",
+                    "Imported file must be a JSON array of tasks.",
+                );
                 return;
             }
             if (taskList.length > 0) {
-                const keep = confirm(
-                    "Replace current tasks with imported tasks? Click Cancel to merge instead.",
-                );
-                if (keep) {
+                const shouldReplace = await requestImportConfirmation();
+                if (shouldReplace) {
                     taskList = parsed;
                 } else {
-                    // merge: append items that don't already exist (prefer id, fallback to name+due)
+                    // Merge items while preserving IDs for exact duplicates.
                     parsed.forEach((orig) => {
                         const t = ensureTaskShape(orig);
-                        const dupById = taskList.some((et) => et.id === t.id);
                         const dupByFields = taskList.some(
                             (et) =>
                                 et.name === t.name &&
                                 et.dueDate === t.dueDate &&
                                 et.dueTime === t.dueTime,
                         );
-                        if (!dupById && !dupByFields) taskList.push(t);
+                        if (dupByFields) return;
+
+                        const duplicateId = taskList.some((et) => et.id === t.id);
+                        if (duplicateId) {
+                            const makeId = () =>
+                                typeof crypto !== "undefined" &&
+                                crypto.randomUUID
+                                    ? crypto.randomUUID()
+                                    : `t-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+                            do {
+                                t.id = makeId();
+                            } while (taskList.some((et) => et.id === t.id));
+                        }
+
+                        taskList.push(t);
                     });
                 }
             } else {
@@ -802,10 +847,10 @@ function importTasksFromFile(file) {
             }
             saveTasks();
             renderTasks();
-            alert("Import successful.");
+            showImportMessage("Import Successful", "Your tasks were imported successfully");
         } catch (err) {
             console.error(err);
-            alert("Failed to parse JSON file.");
+            showImportMessage("Import Failed", "Failed to parse JSON file");
         }
     };
     reader.readAsText(file);
