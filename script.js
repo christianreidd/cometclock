@@ -4,7 +4,7 @@ let currentSortDirection = "asc";
 let activeTaskTab = "active";
 let selectedTaskId = null;
 let pendingDeletionTaskId = null;
-const APP_VERSION = "cometclock v0.1.14";
+const APP_VERSION = "cometclock v0.2.0";
 let userSettings = {
     theme: "dark",
     showSeconds: true,
