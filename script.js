@@ -1,11 +1,13 @@
 let taskList = [];
 let currentSortField = "due";
 let currentSortDirection = "asc";
+let activeTaskTab = "active";
 let selectedTaskId = null;
-const APP_VERSION = "cometclock v0.1.13";
+const APP_VERSION = "cometclock v0.1.14";
 let userSettings = {
     theme: "dark",
     showSeconds: true,
+    separateCompletedTasks: false,
 };
 
 let autoRefreshIntervalId = null;
@@ -118,19 +120,6 @@ function ensureTaskShape(t) {
     };
 }
 
-function noAssignmentsText() {
-    if (taskList.length === 0) {
-        const container = document.getElementById("taskList");
-        container.innerHTML = "";
-
-        const emptyState = document.createElement("div");
-        emptyState.className = "empty-state";
-        emptyState.innerHTML =
-            'You have no assignments! 🎉<br>Click "+" to create one';
-        container.appendChild(emptyState);
-    }
-}
-
 function applyTheme() {
     const isLight = userSettings.theme === "light";
     document.body.classList.toggle("light-mode", isLight);
@@ -180,6 +169,26 @@ async function loadSettings() {
             await settingsAdapter.save(userSettings);
             renderTasks();
         });
+    }
+
+    const separateCompletedTasksToggle = document.getElementById(
+        "separateCompletedTasksToggle",
+    );
+    if (separateCompletedTasksToggle) {
+        separateCompletedTasksToggle.checked = Boolean(
+            userSettings.separateCompletedTasks,
+        );
+        separateCompletedTasksToggle.addEventListener(
+            "change",
+            async (event) => {
+                userSettings.separateCompletedTasks = event.target.checked;
+                if (!userSettings.separateCompletedTasks) {
+                    activeTaskTab = "active";
+                }
+                await settingsAdapter.save(userSettings);
+                renderTasks();
+            },
+        );
     }
 
     applyTheme();
@@ -293,15 +302,58 @@ async function loadTasks() {
     renderTasks();
 }
 
+function selectTaskTab(tab) {
+    if (
+        tab !== "active" &&
+        (!userSettings.separateCompletedTasks || tab !== "completed")
+    ) {
+        return;
+    }
+    activeTaskTab = tab;
+    renderTasks();
+}
+
+function renderTaskTabs() {
+    const tabs = document.getElementById("taskTabs");
+    const activeTab = document.getElementById("activeTasksTab");
+    const completedTab = document.getElementById("completedTasksTab");
+    const showCompletedTab = Boolean(userSettings.separateCompletedTasks);
+
+    tabs.hidden = !showCompletedTab;
+    completedTab.hidden = !showCompletedTab;
+    activeTab.setAttribute("aria-selected", String(activeTaskTab === "active"));
+    completedTab.setAttribute(
+        "aria-selected",
+        String(activeTaskTab === "completed"),
+    );
+}
+
 function renderTasks() {
     const container = document.getElementById("taskList");
     container.innerHTML = "";
-    if (taskList.length === 0) {
-        noAssignmentsText();
+    if (!userSettings.separateCompletedTasks) {
+        activeTaskTab = "active";
+    }
+    renderTaskTabs();
+    const visibleTasks = userSettings.separateCompletedTasks
+        ? taskList.filter((task) =>
+              activeTaskTab === "completed"
+                  ? task.completed
+                  : !task.completed,
+          )
+        : taskList;
+    if (visibleTasks.length === 0) {
+        const emptyState = document.createElement("div");
+        emptyState.className = "empty-state";
+        emptyState.textContent =
+            activeTaskTab === "completed"
+                ? "No completed tasks yet."
+                : 'You have no assignments! 🎉 Click "+" to create one';
+        container.appendChild(emptyState);
         return;
     }
     const sortedTasks = getSortedTasks(
-        taskList,
+        visibleTasks,
         currentSortField,
         currentSortDirection,
     );

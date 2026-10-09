@@ -44,6 +44,28 @@ h1 {
     margin-top: 20px;
 }
 
+.task-tabs {
+    display: flex;
+    gap: 4px;
+    margin-top: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.task-tab {
+    border: 0;
+    border-bottom: 2px solid transparent;
+    padding: 8px 12px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+}
+
+.task-tab[aria-selected="true"] {
+    border-bottom-color: currentColor;
+    font-weight: 700;
+}
+
 .empty-state {
     white-space: pre-line;
     padding: 12px 0;

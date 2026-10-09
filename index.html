@@ -128,6 +128,36 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-down-icon lucide-arrow-down"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
                 </button>
             </div>
+            <div
+                id="taskTabs"
+                class="task-tabs"
+                role="tablist"
+                aria-label="Task views"
+                hidden
+            >
+                <button
+                    id="activeTasksTab"
+                    class="task-tab"
+                    type="button"
+                    role="tab"
+                    aria-controls="taskList"
+                    aria-selected="true"
+                    onClick="selectTaskTab('active')"
+                >
+                    Active
+                </button>
+                <button
+                    id="completedTasksTab"
+                    class="task-tab"
+                    type="button"
+                    role="tab"
+                    aria-controls="taskList"
+                    aria-selected="false"
+                    onClick="selectTaskTab('completed')"
+                >
+                    Completed
+                </button>
+            </div>
             <div id="taskList"></div>
 
             <div id="settingsModal" class="modal">
@@ -157,6 +187,14 @@
                             <p>Display seconds in countdown text.</p>
                         </div>
                         <input id="showSecondsToggle" type="checkbox" />
+                    </label>
+
+                    <label class="setting-row setting-switch" for="separateCompletedTasksToggle">
+                        <div>
+                            <strong>Show completed tasks separately</strong>
+                            <p>Move completed tasks into their own tab.</p>
+                        </div>
+                        <input id="separateCompletedTasksToggle" type="checkbox" />
                     </label>
 
                     <div class="modal-actions">
