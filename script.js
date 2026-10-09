@@ -9,6 +9,7 @@ let userSettings = {
     theme: "dark",
     showSeconds: true,
     hideEmptyTimeUnits: false,
+    use24HourTime: false,
     separateCompletedTasks: false,
     skipDeletionConfirmation: false,
 };
@@ -199,6 +200,18 @@ async function loadSettings() {
                 renderTasks();
             },
         );
+    }
+
+    const use24HourTimeToggle = document.getElementById(
+        "use24HourTimeToggle",
+    );
+    if (use24HourTimeToggle) {
+        use24HourTimeToggle.checked = Boolean(userSettings.use24HourTime);
+        use24HourTimeToggle.addEventListener("change", async (event) => {
+            userSettings.use24HourTime = event.target.checked;
+            await settingsAdapter.save(userSettings);
+            renderTasks();
+        });
     }
 
     const separateCompletedTasksToggle = document.getElementById(
@@ -946,20 +959,26 @@ function convertDate(taskInfo) {
 
 function convertTime(taskInfo) {
     const timeArray = taskInfo.dueTime.split(":");
-    let hour = Number(timeArray[0]);
+    const hour = Number(timeArray[0]);
     const min = timeArray[1];
+
+    if (userSettings.use24HourTime) {
+        return `${String(hour).padStart(2, "0")}:${min}`;
+    }
+
+    let displayHour = hour;
     let timeSuffix = "am";
 
-    if (hour === 0) {
-        hour = 12;
-    } else if (hour === 12) {
+    if (displayHour === 0) {
+        displayHour = 12;
+    } else if (displayHour === 12) {
         timeSuffix = "pm";
-    } else if (hour > 12) {
-        hour -= 12;
+    } else if (displayHour > 12) {
+        displayHour -= 12;
         timeSuffix = "pm";
     }
 
-    return `${hour}:${min}${timeSuffix}`;
+    return `${displayHour}:${min}${timeSuffix}`;
 }
 
 function daySuffix(day) {
