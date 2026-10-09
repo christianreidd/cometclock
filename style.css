@@ -18,8 +18,8 @@ body {
 }
 
 body.light-mode {
-    background-color: #7d58a3;
-    color: #000000;
+    background-color: #664785;
+    color: #323232;
 }
 
 h1 {
@@ -27,17 +27,26 @@ h1 {
     text-align: center;
 }
 
+body.light-mode h1 {
+    color: #323232;
+    text-align: center;
+}
+
 .top-bar {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
     margin-bottom: 8px;
     gap: 8px;
 }
 
-#settingsButton {
+.top-bar .control-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    width: 36px;
+    height: 35px;
+    box-sizing: border-box;
 }
 
 #taskList {
@@ -266,6 +275,49 @@ h1 {
     gap: 10px;
 }
 
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.modal-header h3 {
+    margin: 0;
+}
+
+.modal-close-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 4px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.modal-close-btn:hover,
+.modal-close-btn:focus-visible {
+    background: rgba(17, 24, 39, 0.1);
+}
+
+#deleteConfirmationModal .modal-content {
+    gap: 4px;
+}
+
+#deleteConfirmationModal h3,
+#deleteConfirmationModal p {
+    margin: 0;
+}
+
+#deleteConfirmationModal p {
+    margin-bottom: 4px;
+}
+
 .recurrence-options {
     display: grid;
     gap: 10px;
@@ -338,6 +390,25 @@ h1 {
 .setting-switch input {
     width: 18px;
     height: 18px;
+    margin: 0 0 0 auto;
+    flex-shrink: 0;
+}
+
+.setting-row > .control-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.setting-row > .control-btn svg {
+    width: 18px;
+    height: 18px;
 }
 
 .modal-content input,
@@ -345,6 +416,11 @@ h1 {
     width: 100%;
     box-sizing: border-box;
     padding: 8px;
+}
+
+.modal-content .setting-switch input {
+    width: 18px;
+    padding: 0;
 }
 
 .modal-content textarea {

@@ -162,12 +162,22 @@
 
             <div id="settingsModal" class="modal">
                 <div class="modal-content">
-                    <h3>Settings</h3>
+                    <div class="modal-header">
+                        <h3>Settings</h3>
+                        <button
+                            class="modal-close-btn"
+                            type="button"
+                            aria-label="Close Settings"
+                            onClick="closeSettingsModal()"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x preview-icon"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
+                    </div>
 
                     <div class="setting-row">
                         <div>
                             <strong>Theme</strong>
-                            <p>Swap between light and dark mode.</p>
+                            <p>Swap between light and dark mode</p>
                         </div>
                         <button
                             class="control-btn"
@@ -183,18 +193,26 @@
 
                     <label class="setting-row setting-switch" for="showSecondsToggle">
                         <div>
-                            <strong>Show seconds</strong>
-                            <p>Display seconds in countdown text.</p>
+                            <strong>Show Seconds</strong>
+                            <p>Display 'seconds' unit in the countdown</p>
                         </div>
                         <input id="showSecondsToggle" type="checkbox" />
                     </label>
 
                     <label class="setting-row setting-switch" for="separateCompletedTasksToggle">
                         <div>
-                            <strong>Show completed tasks separately</strong>
-                            <p>Move completed tasks into their own tab.</p>
+                            <strong>Show Completed Tasks Separately</strong>
+                            <p>Move completed tasks into a separate tab</p>
                         </div>
                         <input id="separateCompletedTasksToggle" type="checkbox" />
+                    </label>
+
+                    <label class="setting-row setting-switch" for="skipDeletionConfirmationToggle">
+                        <div>
+                            <strong>Skip Task Deletion Confirmation</strong>
+                            <p>Delete tasks immediately without asking for confirmation</p>
+                        </div>
+                        <input id="skipDeletionConfirmationToggle" type="checkbox" />
                     </label>
 
                     <div class="modal-actions">
@@ -205,7 +223,17 @@
 
             <div id="infoModal" class="modal">
                 <div class="modal-content">
-                    <h3>Info</h3>
+                    <div class="modal-header">
+                        <h3>Info</h3>
+                        <button
+                            class="modal-close-btn"
+                            type="button"
+                            aria-label="Close Info"
+                            onClick="closeInfoModal()"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x preview-icon"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
+                    </div>
 
                     <div class="setting-row info-version-row">
                         <div>
@@ -227,7 +255,17 @@
 
             <div id="creationWindow" class="modal">
                 <div class="modal-content">
-                    <h3>Create Task</h3>
+                    <div class="modal-header">
+                        <h3>Create Task</h3>
+                        <button
+                            class="modal-close-btn"
+                            type="button"
+                            aria-label="Close Create Task"
+                            onClick="closeCreateTaskModal()"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x preview-icon"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
+                    </div>
 
                     <label for="nameInput">Task Name</label>
                     <input id="nameInput" type="text" placeholder="Task Name" />
@@ -280,7 +318,17 @@
 
             <div id="taskModal" class="modal">
                 <div class="modal-content">
-                    <h3>Task Details</h3>
+                    <div class="modal-header">
+                        <h3>Task Details</h3>
+                        <button
+                            class="modal-close-btn"
+                            type="button"
+                            aria-label="Close Task Details"
+                            onClick="closeTaskModal()"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x preview-icon"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
+                    </div>
 
                     <label for="modalTaskName">Task Name</label>
                     <input
@@ -307,6 +355,31 @@
                         </button>
                         <button type="button" onClick="closeTaskModal()">
                             Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="deleteConfirmationModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Delete this task?</h3>
+                        <button
+                            class="modal-close-btn"
+                            type="button"
+                            aria-label="Close Delete Confirmation"
+                            onClick="closeDeleteConfirmation()"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x preview-icon"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
+                    </div>
+                    <p>This cannot be undone.</p>
+                    <div class="modal-actions">
+                        <button type="button" onClick="confirmTaskDeletion()">
+                            Delete
+                        </button>
+                        <button type="button" onClick="closeDeleteConfirmation()">
+                            Cancel
                         </button>
                     </div>
                 </div>

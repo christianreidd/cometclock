@@ -3,11 +3,13 @@ let currentSortField = "due";
 let currentSortDirection = "asc";
 let activeTaskTab = "active";
 let selectedTaskId = null;
+let pendingDeletionTaskId = null;
 const APP_VERSION = "cometclock v0.1.14";
 let userSettings = {
     theme: "dark",
     showSeconds: true,
     separateCompletedTasks: false,
+    skipDeletionConfirmation: false,
 };
 
 let autoRefreshIntervalId = null;
@@ -191,6 +193,22 @@ async function loadSettings() {
         );
     }
 
+    const skipDeletionConfirmationToggle = document.getElementById(
+        "skipDeletionConfirmationToggle",
+    );
+    if (skipDeletionConfirmationToggle) {
+        skipDeletionConfirmationToggle.checked = Boolean(
+            userSettings.skipDeletionConfirmation,
+        );
+        skipDeletionConfirmationToggle.addEventListener(
+            "change",
+            async (event) => {
+                userSettings.skipDeletionConfirmation = event.target.checked;
+                await settingsAdapter.save(userSettings);
+            },
+        );
+    }
+
     applyTheme();
 }
 
@@ -347,8 +365,8 @@ function renderTasks() {
         emptyState.className = "empty-state";
         emptyState.textContent =
             activeTaskTab === "completed"
-                ? "No completed tasks yet."
-                : 'You have no assignments! 🎉 Click "+" to create one';
+                ? "No finished tasks yet."
+                : 'You have no active tasks! 🎉 \n Click the "+" icon to create one.';
         container.appendChild(emptyState);
         return;
     }
@@ -669,6 +687,24 @@ function closeTaskModal() {
     document.getElementById("taskModal").classList.remove("open");
 }
 
+function closeDeleteConfirmation() {
+    pendingDeletionTaskId = null;
+    document.getElementById("deleteConfirmationModal").classList.remove("open");
+}
+
+async function confirmTaskDeletion() {
+    const taskId = pendingDeletionTaskId;
+    closeDeleteConfirmation();
+    if (!taskId) return;
+
+    taskList = taskList.filter((task) => task.id !== taskId);
+    await saveTasks();
+    renderTasks();
+    if (selectedTaskId === taskId) {
+        closeTaskModal();
+    }
+}
+
 async function saveTaskEdits() {
     if (!selectedTaskId) return;
     const task = findTaskById(selectedTaskId);
@@ -701,15 +737,14 @@ async function toggleTaskCompletion(taskId) {
 
 async function deleteTask(taskId) {
     if (!taskId) return;
-    const confirmed = confirm("Delete this task? This cannot be undone.");
-    if (!confirmed) return;
-
-    taskList = taskList.filter((t) => t.id !== taskId);
-    await saveTasks();
-    renderTasks();
-    if (selectedTaskId === taskId) {
-        closeTaskModal();
+    if (userSettings.skipDeletionConfirmation) {
+        pendingDeletionTaskId = taskId;
+        await confirmTaskDeletion();
+        return;
     }
+
+    pendingDeletionTaskId = taskId;
+    document.getElementById("deleteConfirmationModal").classList.add("open");
 }
 
 async function deleteSelectedTask() {
