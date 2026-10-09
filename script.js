@@ -4,10 +4,11 @@ let currentSortDirection = "asc";
 let activeTaskTab = "active";
 let selectedTaskId = null;
 let pendingDeletionTaskId = null;
-const APP_VERSION = "cometclock v0.2.1";
+const APP_VERSION = "cometclock v0.2.2";
 let userSettings = {
     theme: "dark",
     showSeconds: true,
+    hideEmptyTimeUnits: false,
     separateCompletedTasks: false,
     skipDeletionConfirmation: false,
 };
@@ -134,7 +135,11 @@ function applyTheme() {
     }
 }
 
-function getDurationText(timeLeft, includeSeconds = true) {
+function getDurationText(
+    timeLeft,
+    includeSeconds = true,
+    hideEmptyTimeUnits = false,
+) {
     const absoluteTimeLeft = Math.max(0, Math.abs(timeLeft));
     const days = Math.floor(absoluteTimeLeft / (1000 * 60 * 60 * 24));
     const hours = Math.floor(absoluteTimeLeft / (1000 * 60 * 60)) % 24;
@@ -149,6 +154,12 @@ function getDurationText(timeLeft, includeSeconds = true) {
 
     if (includeSeconds) {
         parts.push(`${seconds}s`);
+    }
+
+    if (hideEmptyTimeUnits) {
+        while (parts.length > 1 && parts[0].startsWith("0")) {
+            parts.shift();
+        }
     }
 
     return parts.join(" ");
@@ -171,6 +182,23 @@ async function loadSettings() {
             await settingsAdapter.save(userSettings);
             renderTasks();
         });
+    }
+
+    const hideEmptyTimeUnitsToggle = document.getElementById(
+        "hideEmptyTimeUnitsToggle",
+    );
+    if (hideEmptyTimeUnitsToggle) {
+        hideEmptyTimeUnitsToggle.checked = Boolean(
+            userSettings.hideEmptyTimeUnits,
+        );
+        hideEmptyTimeUnitsToggle.addEventListener(
+            "change",
+            async (event) => {
+                userSettings.hideEmptyTimeUnits = event.target.checked;
+                await settingsAdapter.save(userSettings);
+                renderTasks();
+            },
+        );
     }
 
     const separateCompletedTasksToggle = document.getElementById(
@@ -517,10 +545,10 @@ function buildTaskText(task) {
     }
 
     if (timeLeft < 0) {
-        return `❌ ${taskName}\n${dueInfo} (Overdue by ${getDurationText(timeLeft, userSettings.showSeconds)})`;
+        return `❌ ${taskName}\n${dueInfo} (Overdue by ${getDurationText(timeLeft, userSettings.showSeconds, userSettings.hideEmptyTimeUnits)})`;
     }
 
-    return `${timeLeft <= 3 * 24 * 60 * 60 * 1000 ? "⏰ " : ""}${taskName}\n${dueInfo} (${getDurationText(timeLeft, userSettings.showSeconds)} remaining)`;
+    return `${timeLeft <= 3 * 24 * 60 * 60 * 1000 ? "⏰ " : ""}${taskName}\n${dueInfo} (${getDurationText(timeLeft, userSettings.showSeconds, userSettings.hideEmptyTimeUnits)} remaining)`;
 }
 
 function updateTaskItemState(el, task) {
