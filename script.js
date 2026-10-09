@@ -10,6 +10,7 @@ let userSettings = {
     showSeconds: true,
     hideEmptyTimeUnits: false,
     use24HourTime: false,
+    shortDateFormat: false,
     separateCompletedTasks: false,
     skipDeletionConfirmation: false,
 };
@@ -209,6 +210,18 @@ async function loadSettings() {
         use24HourTimeToggle.checked = Boolean(userSettings.use24HourTime);
         use24HourTimeToggle.addEventListener("change", async (event) => {
             userSettings.use24HourTime = event.target.checked;
+            await settingsAdapter.save(userSettings);
+            renderTasks();
+        });
+    }
+
+    const shortDateFormatToggle = document.getElementById(
+        "shortDateFormatToggle",
+    );
+    if (shortDateFormatToggle) {
+        shortDateFormatToggle.checked = Boolean(userSettings.shortDateFormat);
+        shortDateFormatToggle.addEventListener("change", async (event) => {
+            userSettings.shortDateFormat = event.target.checked;
             await settingsAdapter.save(userSettings);
             renderTasks();
         });
@@ -547,7 +560,7 @@ function renderTasks() {
 function buildTaskText(task) {
     const timeLeft = timeRemaining(task);
     const dateString = convertDate(task);
-    const dueInfo = `Due on the ${dateString} at ${convertTime(task)}`;
+    const dueInfo = `Due on${userSettings.shortDateFormat ? " " : " the "}${dateString} at ${convertTime(task)}`;
     const noteIndicator = String(task.notes || "").trim()
         ? '<span class="task-note-indicator" aria-label="Has notes">📎</span> '
         : "";
@@ -934,6 +947,11 @@ function timeUnits(timeLeft) {
 }
 
 function convertDate(taskInfo) {
+    if (userSettings.shortDateFormat) {
+        const [year, month, day] = taskInfo.dueDate.split("-");
+        return `${day}/${month}/${year.slice(-2)}`;
+    }
+
     const monthNames = {
         "01": "January",
         "02": "February",
