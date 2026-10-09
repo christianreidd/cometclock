@@ -281,6 +281,10 @@ body.light-mode h1 {
     display: flex;
 }
 
+#settingsModal {
+    align-items: flex-start;
+}
+
 .modal-content {
     width: min(560px, 100%);
     max-height: calc(100vh - 32px);
@@ -396,7 +400,6 @@ body.light-mode h1 {
 
 .settings-tab[aria-selected="true"] {
     border-bottom-color: currentColor;
-    background: rgba(17, 24, 39, 0.08);
     font-weight: 700;
 }
 
