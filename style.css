@@ -3,16 +3,58 @@
 :root {
     --dark-background: #4a2e63;
     --dark-modal-background: #3f2a52;
+    --dark-field-background: #513768;
+    --dark-field-border: #72518b;
+    --dark-field-text: #f5eff8;
     --light-background: #664785;
+    --light-field-background: #765798;
+    --light-field-border: #684b82;
+    --light-field-text: #ffffff;
     --light-text: #212121;
     --dark-text: #ffffff;
     --dark-modal-text: #f5eff8;
+    --control-background: #513768;
+    --control-hover-background: #62457a;
+    --control-border: #72518b;
+    --control-text: #f5eff8;
+    --control-focus: #c49bda;
+    --checkbox-checked: #c5ad6a;
     --tooltip-background: #111827;
     --destructive-text: #f87171;
 }
 
 html {
     scrollbar-gutter: stable;
+}
+
+.modal-content select,
+#sortMode {
+    appearance: none;
+    padding-right: 32px;
+    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+        linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position:
+        calc(100% - 15px) 50%,
+        calc(100% - 10px) 50%;
+    background-repeat: no-repeat;
+    background-size:
+        5px 5px,
+        5px 5px;
+}
+
+#sortMode {
+    border: 1px solid var(--control-border);
+    border-radius: 6px;
+    padding: 7px 32px 7px 8px;
+    background-color: var(--control-background);
+    color: var(--control-text);
+    font: inherit;
+}
+
+#sortMode:focus-visible,
+.modal-content select:focus-visible {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 1px;
 }
 
 .settings-tab-panel {
@@ -51,6 +93,12 @@ button svg {
 body.light-mode {
     background-color: var(--light-background);
     color: var(--light-text);
+    --control-background: #765798;
+    --control-hover-background: #8669a5;
+    --control-border: #684b82;
+    --control-text: #212121;
+    --control-focus: #e0c8eb;
+    --checkbox-checked: #a88c4f;
 }
 
 h1 {
@@ -91,8 +139,12 @@ body.light-mode h1 {
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+body.light-mode .task-tabs {
+    border-bottom-color: rgba(33, 33, 33, 0.28);
+}
+
 .task-tab {
-    border: 0;
+    border: 1px solid transparent;
     border-bottom: 2px solid transparent;
     padding: 8px 12px;
     background: transparent;
@@ -104,6 +156,12 @@ body.light-mode h1 {
 .task-tab[aria-selected="true"] {
     border-bottom-color: currentColor;
     font-weight: 700;
+}
+
+.task-tab:hover,
+.task-tab:focus-visible {
+    background: var(--control-hover-background);
+    color: var(--control-text);
 }
 
 .task-tab-count {
@@ -125,6 +183,7 @@ body.light-mode h1 {
 }
 
 .task-item {
+    --task-border-color: rgba(255, 255, 255, 0.2);
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -181,6 +240,7 @@ body.light-mode h1 {
 
 .task-action-buttons {
     display: flex;
+    align-self: center;
     gap: 6px;
     flex-shrink: 0;
     opacity: 0;
@@ -197,12 +257,48 @@ body.light-mode h1 {
 .task-action-btn,
 .control-btn {
     position: relative;
-    border: 0;
+    border: 1px solid var(--control-border);
     border-radius: 6px;
     padding: 6px 8px;
-    background: rgba(255, 255, 255, 0.16);
+    background: var(--control-background);
     color: inherit;
     cursor: pointer;
+    font: inherit;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        transform 0.15s ease;
+}
+
+.task-action-btn:hover,
+.control-btn:hover,
+.task-action-btn:focus-visible,
+.control-btn:focus-visible {
+    background: var(--control-hover-background);
+    border-color: var(--control-focus);
+}
+
+.task-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    border-color: var(--task-border-color);
+    background: color-mix(in srgb, currentColor 12%, transparent);
+    transition:
+        background-color 0.15s ease,
+        transform 0.15s ease;
+}
+
+.task-action-btn:hover,
+.task-action-btn:focus-visible {
+    background: color-mix(in srgb, currentColor 20%, transparent);
+    border-color: var(--task-border-color);
+}
+
+.task-action-btn:active,
+.control-btn:active {
+    transform: translateY(1px);
 }
 
 .task-action-btn[data-tooltip]::after,
@@ -273,25 +369,33 @@ body.light-mode h1 {
 
 .task-action-btn.delete-btn,
 .task-action-btn.complete-btn {
-    background: rgba(255, 255, 255, 0.16);
+    background: color-mix(in srgb, currentColor 12%, transparent);
 }
 
 .task-item.completed {
+    --task-border-color: rgba(22, 163, 74, 0.45);
     color: #00ff00;
-    border-color: rgba(22, 163, 74, 0.45);
+    border-color: var(--task-border-color);
     background: rgba(22, 163, 74, 0.12);
 }
 
 .task-item.overdue {
+    --task-border-color: rgba(255, 77, 77, 0.45);
     color: #ff4d4d;
-    border-color: rgba(255, 77, 77, 0.45);
+    border-color: var(--task-border-color);
     background: rgba(255, 77, 77, 0.12);
 }
 
 .task-item.due-soon {
+    --task-border-color: rgba(255, 156, 71, 0.45);
     color: #ff9c47;
-    border-color: rgba(255, 156, 71, 0.45);
+    border-color: var(--task-border-color);
     background: rgba(255, 156, 71, 0.12);
+}
+
+body.light-mode .task-item:not(.completed):not(.overdue):not(.due-soon) {
+    --task-border-color: rgba(33, 33, 33, 0.3);
+    border-color: var(--task-border-color);
 }
 
 #lightMode {
@@ -392,7 +496,8 @@ body.light-mode .modal-content {
 
 .modal-close-btn:hover,
 .modal-close-btn:focus-visible {
-    background: rgba(17, 24, 39, 0.1);
+    background: var(--control-hover-background);
+    border-color: var(--control-border);
 }
 
 #deleteConfirmationModal .modal-content {
@@ -540,6 +645,7 @@ body.light-mode .modal-content {
 
 #themeToggleButton {
     border-radius: 0;
+    border: 0;
     padding: 0;
     background: transparent;
 }
@@ -601,15 +707,99 @@ body.light-mode .modal-content {
 }
 
 .modal-content input,
-.modal-content textarea {
+.modal-content textarea,
+.modal-content select {
     width: 100%;
     box-sizing: border-box;
     padding: 8px;
+    border: 1px solid var(--dark-field-border);
+    border-radius: 6px;
+    background-color: var(--dark-field-background);
+    color: var(--dark-field-text);
+    font: inherit;
+}
+
+.modal-content input:not([type="checkbox"]):focus,
+.modal-content textarea:focus,
+.modal-content select:focus {
+    outline: 2px solid #a879c4;
+    outline-offset: 1px;
+}
+
+.modal-content input:not([type="checkbox"])::placeholder,
+.modal-content textarea::placeholder {
+    color: rgba(245, 239, 248, 0.65);
+}
+
+.modal-content input[type="date"],
+.modal-content input[type="time"] {
+    color-scheme: dark;
+    accent-color: #a879c4;
+}
+
+body.light-mode .modal-content input:not([type="checkbox"]),
+body.light-mode .modal-content textarea,
+body.light-mode .modal-content select {
+    border-color: var(--light-field-border);
+    background-color: var(--light-field-background);
+    color: var(--light-field-text);
+}
+
+body.light-mode .modal-content input:not([type="checkbox"])::placeholder,
+body.light-mode .modal-content textarea::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+body.light-mode .modal-content input[type="date"],
+body.light-mode .modal-content input[type="time"] {
+    color-scheme: light;
+    accent-color: #664785;
 }
 
 .modal-content .setting-switch input {
     width: 18px;
     padding: 0;
+}
+
+.modal-content .setting-switch input[type="checkbox"] {
+    appearance: none;
+    width: 42px;
+    height: 24px;
+    margin: 0 0 0 auto;
+    padding: 0;
+    border: 1px solid var(--control-border);
+    border-radius: 999px;
+    background: var(--control-background);
+    cursor: pointer;
+    position: relative;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.modal-content .setting-switch input[type="checkbox"]::before {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--control-text);
+    transition: transform 0.15s ease;
+}
+
+.modal-content .setting-switch input[type="checkbox"]:checked {
+    background: var(--checkbox-checked);
+}
+
+.modal-content .setting-switch input[type="checkbox"]:checked::before {
+    transform: translateX(18px);
+}
+
+.modal-content .setting-switch input[type="checkbox"]:focus-visible {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
 }
 
 .modal-content textarea {
@@ -627,6 +817,30 @@ body.light-mode .modal-content {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+}
+
+.modal-actions button {
+    border: 1px solid var(--control-border);
+    border-radius: 6px;
+    padding: 8px 14px;
+    background: var(--control-background);
+    color: var(--control-text);
+    cursor: pointer;
+    font: inherit;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        transform 0.15s ease;
+}
+
+.modal-actions button:hover,
+.modal-actions button:focus-visible {
+    background: var(--control-hover-background);
+    border-color: var(--control-focus);
+}
+
+.modal-actions button:active {
+    transform: translateY(1px);
 }
 
 #tag {
