@@ -5,7 +5,7 @@ let activeTaskTab = "active";
 let selectedTaskId = null;
 let pendingDeletionTaskId = null;
 let pendingClearTasksMode = null;
-const APP_VERSION = "cometclock v0.2.9";
+const APP_VERSION = "cometclock v0.2.10";
 let userSettings = {
     theme: "dark",
     showSeconds: true,
@@ -903,6 +903,28 @@ async function saveTaskEdits() {
     task.dueTime = document.getElementById("modalDueTime").value;
     task.notes = document.getElementById("modalTaskNotes").value;
 
+    await saveTasks();
+    renderTasks();
+    closeTaskModal();
+}
+
+async function duplicateSelectedTask() {
+    if (!selectedTaskId) return;
+    const task = findTaskById(selectedTaskId);
+    if (!task) return;
+
+    const duplicate = ensureTaskShape({
+        ...task,
+        id: "",
+        name: `Copy of ${task.name}`,
+        dateAdded: new Date().toISOString(),
+        completed: false,
+        recurrenceId: "",
+        recurrence: "none",
+        recurrenceInterval: 1,
+    });
+
+    taskList.push(duplicate);
     await saveTasks();
     renderTasks();
     closeTaskModal();
