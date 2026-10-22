@@ -127,6 +127,27 @@
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-down-icon lucide-arrow-down"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
                 </button>
+                <button
+                    class="control-btn"
+                    id="labelFilterButton"
+                    type="button"
+                    aria-label="Filter By Labels"
+                    data-tooltip="Filter By Labels"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-funnel preview-icon"><path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"/></svg>
+                </button>
+                <div id="labelFilterPanel" class="label-filter-panel" hidden>
+                    <div class="label-filter-header">
+                        <strong id="labelFilterTitle">Filter By Labels (0)</strong>
+                        <button class="label-filter-close" type="button" aria-label="Close Filter By Labels" onClick="closeLabelFilter()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x preview-icon"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
+                    </div>
+                    <div id="labelFilterOptions"></div>
+                </div>
+                <button class="control-btn" type="button" onClick="openLabelManager()" aria-label="Manage Labels" data-tooltip="Manage Labels">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+                </button>
             </div>
             <div
                 id="taskTabs"
@@ -298,6 +319,23 @@
 
                     <div class="setting-row setting-row-destructive" data-settings-panel="general">
                         <div>
+                            <strong>Reset Labels</strong>
+                            <p>Restore the default labels and colours</p>
+                        </div>
+                        <button
+                            class="setting-action-btn"
+                            type="button"
+                            aria-label="Reset Labels"
+                            data-tooltip="Reset Labels"
+                            onClick="requestResetLabels()"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            <span class="setting-tooltip" aria-hidden="true">Reset Labels</span>
+                        </button>
+                    </div>
+
+                    <div class="setting-row setting-row-destructive" data-settings-panel="general">
+                        <div>
                             <strong>Clear All Tasks</strong>
                             <p>Delete all tasks permanently</p>
                         </div>
@@ -348,6 +386,27 @@
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x preview-icon"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                         </button>
+                    </div>
+
+                    <div id="resetLabelsConfirmationModal" class="modal">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Reset labels?</h3>
+                                <button
+                                    class="modal-close-btn"
+                                    type="button"
+                                    aria-label="Close Reset Labels Confirmation"
+                                    onClick="closeResetLabelsConfirmation()"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x preview-icon"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                                </button>
+                            </div>
+                            <p>Restore the default labels and colours? Custom labels will be removed.</p>
+                            <div class="modal-actions">
+                                <button type="button" onClick="resetLabels()">Reset</button>
+                                <button type="button" onClick="closeResetLabelsConfirmation()">Cancel</button>
+                            </div>
+                        </div>
                     </div>
                     <p>Reset all settings to their defaults? Your current theme will be unchanged</p>
                     <div class="modal-actions">
@@ -445,6 +504,12 @@
                         <small>Each occurrence will be created as a separate task</small>
                     </div>
 
+                    <div class="task-label-picker">
+                        <label for="labelInputButton">Labels</label>
+                        <button id="labelInputButton" class="label-picker-button" type="button" aria-expanded="false" onClick="toggleTaskLabelPicker('labelInput')">No Labels Selected</button>
+                        <select id="labelInput" class="label-select" multiple hidden></select>
+                    </div>
+
                     <div class="modal-actions">
                         <button onClick="createTask()" type="button">
                             Create
@@ -489,6 +554,12 @@
                         placeholder="Add Notes Here..."
                     ></textarea>
 
+                    <div class="task-label-picker">
+                        <label for="modalLabelInputButton">Labels</label>
+                        <button id="modalLabelInputButton" class="label-picker-button" type="button" aria-expanded="false" onClick="toggleTaskLabelPicker('modalLabelInput')">No Labels Selected</button>
+                        <select id="modalLabelInput" class="label-select" multiple hidden></select>
+                    </div>
+
                     <div class="modal-actions">
                         <button type="button" onClick="saveTaskEdits()">
                             Save
@@ -502,6 +573,54 @@
                         <button type="button" onClick="closeTaskModal()">
                             Close
                         </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="taskLabelModal" class="modal">
+                <div class="modal-content task-label-modal-content">
+                    <div class="modal-header">
+                        <h3>Select Labels</h3>
+                        <button class="modal-close-btn" type="button" aria-label="Close Select Labels" onClick="closeTaskLabelModal()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x preview-icon"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
+                    </div>
+                    <div id="taskLabelModalOptions" class="task-label-modal-options"></div>
+                    <div class="modal-actions">
+                        <button type="button" onClick="applyTaskLabels()">Apply</button>
+                        <button type="button" onClick="closeTaskLabelModal()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="labelManagerModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Manage Labels</h3>
+                        <button class="modal-close-btn" type="button" aria-label="Close Manage Labels" onClick="closeLabelManager()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x preview-icon"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
+                    </div>
+                    <div class="label-manager-tabs" role="tablist" aria-label="Label Management">
+                        <button id="manageLabelsTab" class="label-manager-tab" type="button" role="tab" aria-selected="true" onClick="selectLabelManagerTab('manage')">Manage Labels</button>
+                        <button id="createLabelTab" class="label-manager-tab" type="button" role="tab" aria-selected="false" onClick="selectLabelManagerTab('create')">Create Label</button>
+                    </div>
+                    <div id="manageLabelsPanel" class="label-manager-panel">
+                        <div id="labelManagerList" class="label-manager-list"></div>
+                    </div>
+                    <div id="createLabelPanel" class="label-manager-panel" hidden>
+                        <label for="newLabelName">New Label</label>
+                        <input id="newLabelName" type="text" placeholder="Label Name" />
+                        <label for="newLabelColor">Colour</label>
+                        <input id="newLabelColor" type="color" value="#a879c4" />
+                        <div class="modal-actions">
+                            <button type="button" onClick="createLabel()">Create Label</button>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button id="saveLabelEditsButton" type="button" onClick="saveLabelEdits()">Save</button>
+                        <button type="button" onClick="closeLabelManager()">Close</button>
                     </div>
                 </div>
             </div>

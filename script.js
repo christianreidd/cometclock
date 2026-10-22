@@ -1,11 +1,26 @@
 let taskList = [];
+let labelList = [];
+let selectedLabelIds = [];
+let activeTaskLabelInputId = null;
+let pendingTaskLabelIds = new Set();
 let currentSortField = "due";
 let currentSortDirection = "asc";
 let activeTaskTab = "active";
 let selectedTaskId = null;
 let pendingDeletionTaskId = null;
 let pendingClearTasksMode = null;
-const APP_VERSION = "cometclock v0.3.0";
+const APP_VERSION = "cometclock v0.4.0";
+const DEFAULT_LABELS = [
+    { name: "Priority 1", color: "#ef4444" },
+    { name: "Priority 2", color: "#f97316" },
+    { name: "Priority 3", color: "#eab308" },
+    { name: "Assignment", color: "#3b82f6" },
+    { name: "Exam", color: "#8b5cf6" },
+    { name: "Study", color: "#14b8a6" },
+    { name: "Personal", color: "#ec4899" },
+    { name: "Other", color: "#6b7280" },
+];
+
 let userSettings = {
     theme: "dark",
     showSeconds: true,
@@ -27,6 +42,9 @@ window.addEventListener("DOMContentLoaded", async () => {
             renderTasks();
         });
     }
+    document
+        .getElementById("labelFilterButton")
+        ?.addEventListener("click", toggleLabelFilter);
 
     const sortDirectionButton = document.getElementById("sortDirectionButton");
     if (sortDirectionButton) {
@@ -38,12 +56,12 @@ window.addEventListener("DOMContentLoaded", async () => {
         });
         updateSortDirectionButton(sortDirectionButton);
     }
-
     await loadSettings();
     const infoVersion = document.getElementById("infoVersion");
     if (infoVersion) {
         infoVersion.textContent = APP_VERSION;
     }
+    await loadLabels();
     await loadTasks();
     startAutoRefresh();
 });
@@ -123,7 +141,410 @@ function ensureTaskShape(t) {
         recurrenceInterval: Number.isInteger(t.recurrenceInterval)
             ? t.recurrenceInterval
             : 1,
+        labelIds: Array.isArray(t.labelIds) ? t.labelIds : [],
     };
+}
+
+function makeId(prefix = "id") {
+    return typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+}
+
+function ensureLabelShape(label) {
+    return {
+        id: label.id || makeId("label"),
+        name: String(label.name || "").trim(),
+        color: /^#[0-9a-f]{6}$/i.test(label.color) ? label.color : "#a879c4",
+    };
+}
+
+const labelsAdapter = {
+    key: "cometclock.labels",
+    async load() {
+        try {
+            const raw = localStorage.getItem(this.key);
+            return raw ? JSON.parse(raw) : null;
+        } catch (e) {
+            console.warn("Failed to load labels from localStorage", e);
+            return null;
+        }
+    },
+    async save(labels) {
+        try {
+            localStorage.setItem(this.key, JSON.stringify(labels));
+        } catch (e) {
+            console.warn("Failed to save labels to localStorage", e);
+        }
+    },
+};
+
+async function loadLabels() {
+    const savedLabels = await labelsAdapter.load();
+    if (Array.isArray(savedLabels)) {
+        labelList = savedLabels.map(ensureLabelShape).filter((label) => label.name);
+    } else {
+        labelList = DEFAULT_LABELS.map((label) => ensureLabelShape(label));
+        await labelsAdapter.save(labelList);
+    }
+    populateLabelInputs();
+}
+
+function getLabelById(labelId) {
+    return labelList.find((label) => label.id === labelId);
+}
+
+function populateLabelInputs() {
+    renderLabelFilter();
+    ["labelInput", "modalLabelInput"].forEach((inputId) => {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        const selected = new Set(Array.from(input.selectedOptions).map((option) => option.value));
+        input.innerHTML = "";
+        labelList.forEach((label) => {
+            const option = document.createElement("option");
+            option.value = label.id;
+            option.textContent = label.name;
+            option.selected = selected.has(label.id);
+            input.appendChild(option);
+        });
+        renderTaskLabelPicker(inputId, selected);
+        updateTaskLabelPickerButton(inputId);
+    });
+}
+
+function renderTaskLabelPicker(inputId, selectedIds) {
+    const picker = document.getElementById(`${inputId}Picker`);
+    const button = document.getElementById(`${inputId}Button`);
+    if (!button) return;
+    if (!picker) {
+        updateTaskLabelPickerButton(inputId);
+        return;
+    }
+    picker.innerHTML = "";
+    labelList.forEach((label) => {
+        const option = document.createElement("label");
+        option.className = "task-label-picker-option";
+        option.style.setProperty("--label-color", label.color);
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = label.id;
+        checkbox.checked = selectedIds.has(label.id);
+        checkbox.addEventListener("change", () => {
+            const select = document.getElementById(inputId);
+            const selected = new Set(
+                Array.from(picker.querySelectorAll("input:checked"), (input) => input.value),
+            );
+            Array.from(select.options).forEach((selectOption) => {
+                selectOption.selected = selected.has(selectOption.value);
+            });
+            updateTaskLabelPickerButton(inputId);
+        });
+        const name = document.createElement("span");
+        name.textContent = label.name;
+        const swatch = document.createElement("span");
+        swatch.className = "task-label-picker-swatch";
+        swatch.setAttribute("aria-hidden", "true");
+        option.append(checkbox, swatch, name);
+        picker.appendChild(option);
+    });
+    updateTaskLabelPickerButton(inputId);
+}
+
+function updateTaskLabelPickerButton(inputId) {
+    const select = document.getElementById(inputId);
+    const button = document.getElementById(`${inputId}Button`);
+    if (!select || !button) return;
+    const names = Array.from(select.selectedOptions, (option) => option.textContent);
+    button.textContent = names.length
+        ? `${names.length} Label${names.length === 1 ? "" : "s"} Selected`
+        : "No Labels Selected";
+}
+
+function toggleTaskLabelPicker(inputId) {
+    activeTaskLabelInputId = inputId;
+    const select = document.getElementById(inputId);
+    pendingTaskLabelIds = new Set(
+        Array.from(select?.selectedOptions || [], (option) => option.value),
+    );
+    renderTaskLabelModal();
+    document.getElementById("taskLabelModal").classList.add("open");
+}
+
+function renderTaskLabelModal() {
+    const container = document.getElementById("taskLabelModalOptions");
+    if (!container) return;
+    container.innerHTML = "";
+    labelList.forEach((label) => {
+        const option = document.createElement("label");
+        option.className = "task-label-modal-option";
+        option.style.setProperty("--label-color", label.color);
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = pendingTaskLabelIds.has(label.id);
+        checkbox.addEventListener("change", () => {
+            if (checkbox.checked) {
+                pendingTaskLabelIds.add(label.id);
+            } else {
+                pendingTaskLabelIds.delete(label.id);
+            }
+        });
+        const swatch = document.createElement("span");
+        swatch.className = "task-label-picker-swatch";
+        const name = document.createElement("span");
+        name.textContent = label.name;
+        option.append(checkbox, swatch, name);
+        container.appendChild(option);
+    });
+}
+
+function closeTaskLabelModal() {
+    activeTaskLabelInputId = null;
+    document.getElementById("taskLabelModal").classList.remove("open");
+}
+
+function applyTaskLabels() {
+    if (!activeTaskLabelInputId) return;
+    const select = document.getElementById(activeTaskLabelInputId);
+    if (!select) return;
+    Array.from(select.options).forEach((option) => {
+        option.selected = pendingTaskLabelIds.has(option.value);
+    });
+    updateTaskLabelPickerButton(activeTaskLabelInputId);
+    closeTaskLabelModal();
+}
+
+function renderLabelFilter() {
+    const container = document.getElementById("labelFilterOptions");
+    if (!container) return;
+    const title = document.getElementById("labelFilterTitle");
+    if (title) {
+        title.textContent = `Filter By Labels (${labelList.length})`;
+    }
+    container.innerHTML = "";
+    labelList.forEach((label) => {
+        const option = document.createElement("label");
+        option.className = "label-filter-option";
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = label.id;
+        checkbox.checked = selectedLabelIds.includes(label.id);
+        checkbox.addEventListener("change", () => {
+            selectedLabelIds = Array.from(
+                container.querySelectorAll("input:checked"),
+                (input) => input.value,
+            );
+            updateLabelFilterButton();
+            renderTasks();
+        });
+        const name = document.createElement("span");
+        name.textContent = label.name;
+        name.style.setProperty("--label-color", label.color);
+        option.append(checkbox, name);
+        container.appendChild(option);
+    });
+    updateLabelFilterButton();
+}
+
+function updateLabelFilterButton() {
+    const button = document.getElementById("labelFilterButton");
+    if (!button) return;
+    const count = selectedLabelIds.length;
+    button.setAttribute(
+        "aria-label",
+        count ? `Filter By ${count} Label${count === 1 ? "" : "s"}` : "Filter By Labels",
+    );
+    button.dataset.tooltip = count
+        ? `${count} Label${count === 1 ? "" : "s"} Selected`
+        : "Filter By Labels";
+}
+
+function toggleLabelFilter() {
+    const panel = document.getElementById("labelFilterPanel");
+    if (!panel) return;
+    panel.hidden = !panel.hidden;
+    if (!panel.hidden) {
+        renderLabelFilter();
+    }
+}
+
+function closeLabelFilter() {
+    const panel = document.getElementById("labelFilterPanel");
+    if (panel) {
+        panel.hidden = true;
+    }
+}
+
+function renderLabelManager() {
+    const container = document.getElementById("labelManagerList");
+    if (!container) return;
+    container.innerHTML = "";
+    labelList.forEach((label) => {
+        const row = document.createElement("div");
+        row.className = "label-manager-row";
+        row.dataset.labelId = label.id;
+        row.style.setProperty("--label-color", label.color);
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "label-delete-button";
+        deleteButton.setAttribute("aria-label", `Delete ${label.name}`);
+        deleteButton.dataset.tooltip = "Delete label";
+        deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
+        const editFields = document.createElement("div");
+        editFields.className = "label-manager-fields";
+        const nameInput = document.createElement("input");
+        nameInput.type = "text";
+        nameInput.value = label.name;
+        nameInput.setAttribute("aria-label", `Name for ${label.name}`);
+        const colorInput = document.createElement("input");
+        colorInput.type = "color";
+        colorInput.value = label.color;
+        colorInput.setAttribute("aria-label", `Colour for ${label.name}`);
+        editFields.append(nameInput, colorInput);
+        deleteButton.addEventListener("click", async () => {
+            labelList = labelList.filter((item) => item.id !== label.id);
+            selectedLabelIds = selectedLabelIds.filter((id) => id !== label.id);
+            taskList.forEach((task) => {
+                task.labelIds = task.labelIds.filter((id) => id !== label.id);
+            });
+            await labelsAdapter.save(labelList);
+            await saveTasks();
+            renderLabelManager();
+            populateLabelInputs();
+            renderTasks();
+        });
+        row.append(editFields, deleteButton);
+        container.appendChild(row);
+    });
+}
+
+async function saveLabelEdits() {
+    const rows = document.querySelectorAll(".label-manager-row");
+    const updates = [];
+    for (const row of rows) {
+        const labelId = row.dataset.labelId;
+        const nameInput = row.querySelector('input[type="text"]');
+        const colorInput = row.querySelector('input[type="color"]');
+        const name = nameInput.value.trim();
+        if (!name) {
+            alert("Label name cannot be empty.");
+            return;
+        }
+        if (updates.some((label) => label.name.toLowerCase() === name.toLowerCase()) ||
+            labelList.some((label) => label.id !== labelId && label.name.toLowerCase() === name.toLowerCase())) {
+            alert("A label with this name already exists.");
+            return;
+        }
+        updates.push({ id: labelId, name, color: colorInput.value });
+    }
+    updates.forEach((update) => {
+        const label = getLabelById(update.id);
+        if (label) {
+            label.name = update.name;
+            label.color = update.color;
+        }
+    });
+    await labelsAdapter.save(labelList);
+    renderLabelManager();
+    populateLabelInputs();
+    renderTasks();
+}
+
+function openLabelManager() {
+    renderLabelManager();
+    selectLabelManagerTab("manage");
+    document.getElementById("labelManagerModal").classList.add("open");
+}
+
+function selectLabelManagerTab(tabName) {
+    const isCreate = tabName === "create";
+    document.getElementById("manageLabelsPanel").hidden = isCreate;
+    document.getElementById("createLabelPanel").hidden = !isCreate;
+    document
+        .getElementById("manageLabelsTab")
+        .setAttribute("aria-selected", String(!isCreate));
+    document
+        .getElementById("createLabelTab")
+        .setAttribute("aria-selected", String(isCreate));
+    document
+        .getElementById("saveLabelEditsButton")
+        .toggleAttribute("hidden", isCreate);
+}
+
+function closeLabelManager() {
+    document.getElementById("labelManagerModal").classList.remove("open");
+}
+
+function requestResetLabels() {
+    document
+        .getElementById("resetSettingsConfirmationModal")
+        .classList.add("open");
+    document.getElementById("resetLabelsConfirmationModal").classList.add("open");
+}
+
+function closeResetLabelsConfirmation() {
+    document
+        .getElementById("resetLabelsConfirmationModal")
+        .classList.remove("open");
+    document
+        .getElementById("resetSettingsConfirmationModal")
+        .classList.remove("open");
+}
+
+async function resetLabels() {
+    const oldLabelsById = new Map(
+        labelList.map((label) => [label.id, label.name.toLowerCase()]),
+    );
+    const existingIdsByName = new Map();
+    labelList.forEach((label) => {
+        const name = label.name.toLowerCase();
+        if (!existingIdsByName.has(name)) {
+            existingIdsByName.set(name, label.id);
+        }
+    });
+    labelList = DEFAULT_LABELS.map((defaultLabel) =>
+        ensureLabelShape({
+            ...defaultLabel,
+            id: existingIdsByName.get(defaultLabel.name.toLowerCase()) || "",
+        }),
+    );
+    const labelIdsByName = new Map(
+        labelList.map((label) => [label.name.toLowerCase(), label.id]),
+    );
+    taskList.forEach((task) => {
+        task.labelIds = task.labelIds
+            .map((id) => labelIdsByName.get(oldLabelsById.get(id)))
+            .filter(Boolean);
+    });
+    selectedLabelIds = selectedLabelIds
+        .map((id) => labelIdsByName.get(oldLabelsById.get(id)))
+        .filter(Boolean);
+    await labelsAdapter.save(labelList);
+    await saveTasks();
+    closeResetLabelsConfirmation();
+    renderLabelManager();
+    populateLabelInputs();
+    renderTasks();
+}
+
+async function createLabel() {
+    const nameInput = document.getElementById("newLabelName");
+    const colorInput = document.getElementById("newLabelColor");
+    const name = nameInput.value.trim();
+    if (!name) {
+        alert("Label name cannot be empty.");
+        return;
+    }
+    if (labelList.some((label) => label.name.toLowerCase() === name.toLowerCase())) {
+        alert("A label with this name already exists.");
+        return;
+    }
+    labelList.push(ensureLabelShape({ name, color: colorInput.value }));
+    await labelsAdapter.save(labelList);
+    nameInput.value = "";
+    colorInput.value = "#a879c4";
+    renderLabelManager();
+    populateLabelInputs();
 }
 
 function applyTheme() {
@@ -133,8 +554,8 @@ function applyTheme() {
     const themeToggleButton = document.getElementById("themeToggleButton");
     if (themeToggleButton) {
         themeToggleButton.innerHTML = isLight
-            ? `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon-icon lucide-moon"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>`
-            : `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun-icon lucide-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
+            ? `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun-icon lucide-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`
+            : `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon-icon lucide-moon"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>`;
     }
 }
 
@@ -498,11 +919,15 @@ function renderTasks() {
     renderTaskTabs();
     const visibleTasks = userSettings.separateCompletedTasks
         ? taskList.filter((task) =>
-              activeTaskTab === "completed"
-                  ? task.completed
-                  : !task.completed,
+              (activeTaskTab === "completed" ? task.completed : !task.completed) &&
+              (!selectedLabelIds.length ||
+                  selectedLabelIds.some((id) => task.labelIds.includes(id))),
           )
-        : taskList;
+        : taskList.filter(
+              (task) =>
+                  !selectedLabelIds.length ||
+                  selectedLabelIds.some((id) => task.labelIds.includes(id)),
+          );
     if (visibleTasks.length === 0) {
         const emptyState = document.createElement("div");
         emptyState.className = "empty-state";
@@ -541,7 +966,24 @@ function renderTasks() {
         }
         const summary = document.createElement("div");
         summary.className = "task-summary";
-        summary.innerHTML = taskText.replace(/\n/g, "<br>");
+        const summaryText = document.createElement("span");
+        summaryText.className = "task-summary-text";
+        summaryText.innerHTML = taskText.replace(/\n/g, "<br>");
+        summaryText.dataset.renderedText = taskText;
+        summary.appendChild(summaryText);
+        const labels = document.createElement("div");
+        labels.className = "task-labels";
+        task.labelIds
+            .map(getLabelById)
+            .filter(Boolean)
+            .forEach((label) => {
+                const badge = document.createElement("span");
+                badge.className = "task-label";
+                badge.textContent = label.name;
+                badge.style.setProperty("--label-color", label.color);
+                labels.appendChild(badge);
+            });
+        content.appendChild(labels);
 
         if (hasNote) {
             const note = document.createElement("div");
@@ -655,9 +1097,13 @@ function refreshTaskCountdowns() {
 
         updateTaskItemState(el, task);
 
-        const summary = el.querySelector(".task-summary");
+        const summary = el.querySelector(".task-summary-text");
         if (summary) {
-            summary.innerHTML = buildTaskText(task).replace(/\n/g, "<br>");
+            const taskText = buildTaskText(task);
+            if (summary.dataset.renderedText !== taskText) {
+                summary.innerHTML = taskText.replace(/\n/g, "<br>");
+                summary.dataset.renderedText = taskText;
+            }
         }
     });
 }
@@ -704,6 +1150,10 @@ async function createTask() {
     const recurrenceInterval = Number.parseInt(
         document.getElementById("recurrenceInterval").value,
         10,
+    );
+    const labelIds = Array.from(
+        document.getElementById("labelInput").selectedOptions,
+        (option) => option.value,
     );
 
     const makeId = () =>
@@ -763,6 +1213,7 @@ async function createTask() {
             recurrenceId,
             recurrence,
             recurrenceInterval: recurrence === "custom" ? recurrenceInterval : 1,
+            labelIds,
         });
 
         if (recurrence === "none") break;
@@ -802,6 +1253,8 @@ async function createTask() {
     document.getElementById("recurrence").value = "none";
     document.getElementById("recurrenceEndDate").value = "";
     document.getElementById("recurrenceInterval").value = "3";
+    document.getElementById("labelInput").selectedIndex = -1;
+    renderTaskLabelPicker("labelInput", new Set());
     toggleRecurrenceEndDate();
     closeCreateTaskModal();
     renderTasks();
@@ -821,6 +1274,16 @@ function openTaskModal(taskId) {
     document.getElementById("modalDueDate").value = task.dueDate || "";
     document.getElementById("modalDueTime").value = task.dueTime || "";
     document.getElementById("modalTaskNotes").value = task.notes || "";
+    populateLabelInputs();
+    Array.from(document.getElementById("modalLabelInput").options).forEach(
+        (option) => {
+            option.selected = task.labelIds.includes(option.value);
+        },
+    );
+    renderTaskLabelPicker(
+        "modalLabelInput",
+        new Set(task.labelIds),
+    );
 
     document.getElementById("taskModal").classList.add("open");
 }
@@ -839,7 +1302,7 @@ function requestClearTasks(mode) {
     pendingClearTasksMode = mode;
     const isCompleted = mode === "completed";
     document.getElementById("clearTasksConfirmationTitle").textContent =
-        isCompleted ? "Clear finished tasks?" : "Clear all tasks?";
+    isCompleted ? "Clear finished tasks?" : "Clear all tasks?";
     document.getElementById("clearTasksConfirmationText").textContent =
         isCompleted
             ? "All completed tasks will be permanently deleted"
@@ -902,6 +1365,10 @@ async function saveTaskEdits() {
     task.dueDate = document.getElementById("modalDueDate").value;
     task.dueTime = document.getElementById("modalDueTime").value;
     task.notes = document.getElementById("modalTaskNotes").value;
+    task.labelIds = Array.from(
+        document.getElementById("modalLabelInput").selectedOptions,
+        (option) => option.value,
+    );
 
     await saveTasks();
     renderTasks();
@@ -979,7 +1446,7 @@ function importTasksFromFile(file) {
             const parsed = JSON.parse(e.target.result);
             if (!Array.isArray(parsed)) {
                 showImportMessage(
-                    "Import failed",
+                    "Import Failed",
                     "Imported file must be a JSON array of tasks.",
                 );
                 return;
@@ -987,7 +1454,7 @@ function importTasksFromFile(file) {
             if (taskList.length > 0) {
                 const shouldReplace = await requestImportConfirmation();
                 if (shouldReplace) {
-                    taskList = parsed;
+                    taskList = parsed.map(ensureTaskShape);
                 } else {
                     // Merge items while preserving IDs for exact duplicates.
                     parsed.forEach((orig) => {

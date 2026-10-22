@@ -212,6 +212,288 @@ body.light-mode .task-tabs {
     outline: none;
 }
 
+.task-labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 7px;
+}
+
+.task-label {
+    display: inline-block;
+    padding: 2px 7px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--label-color);
+    color: #fff;
+    font-size: 0.78rem;
+    line-height: 1.3;
+}
+
+.label-select {
+    display: none;
+}
+
+.task-label-picker {
+    position: relative;
+    display: grid;
+    gap: 8px;
+}
+
+.label-picker-button {
+    position: relative;
+    width: 100%;
+    min-height: 40px;
+    padding: 9px 38px 9px 12px;
+    border: 1px solid var(--dark-field-border);
+    border-radius: 6px;
+    background: var(--dark-field-background);
+    color: var(--dark-field-text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.label-picker-button::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 13px;
+    width: 7px;
+    height: 7px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-65%) rotate(45deg);
+    opacity: 0.7;
+}
+
+.label-picker-button[aria-expanded="true"]::after {
+    transform: translateY(-25%) rotate(225deg);
+}
+
+body.light-mode .label-picker-button {
+    border-color: var(--light-field-border);
+    background: var(--light-field-background);
+    color: var(--light-field-text);
+}
+
+.label-picker-button:focus-visible {
+    outline: 2px solid #a879c4;
+    outline-offset: 1px;
+}
+
+.task-label-picker-options {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: grid;
+    gap: 3px;
+    max-height: 190px;
+    overflow-y: auto;
+    padding: 6px;
+    border: 1px solid var(--dark-field-border);
+    border-radius: 8px;
+    background: var(--dark-field-background);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.task-label-picker-options[hidden] {
+    display: none;
+}
+
+body.light-mode .task-label-picker-options {
+    border-color: var(--light-field-border);
+    background: var(--light-field-background);
+}
+
+.task-label-picker-option {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    min-height: 34px;
+    padding: 5px 8px;
+    border-radius: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.task-label-modal-content {
+    width: min(420px, 100%);
+}
+
+.task-label-modal-options {
+    display: grid;
+    gap: 4px;
+    max-height: min(50vh, 360px);
+    overflow-y: auto;
+    padding: 4px;
+}
+
+.task-label-modal-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 40px;
+    padding: 7px 9px;
+    border-radius: 6px;
+    border-left: 4px solid var(--label-color);
+    cursor: pointer;
+}
+
+.task-label-modal-option:hover {
+    background: var(--control-hover-background);
+}
+
+.task-label-modal-option input {
+    order: 3;
+    width: 17px;
+    height: 17px;
+    flex: 0 0 17px;
+    margin: 0;
+    accent-color: var(--label-color);
+}
+
+.task-label-modal-option > span:last-child {
+    order: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.task-label-modal-option .task-label-picker-swatch {
+    display: none;
+}
+
+.task-label-picker-option:hover,
+.task-label-picker-option:has(input:focus-visible) {
+    background: var(--control-hover-background);
+}
+
+.task-label-picker-option:has(input:checked) {
+    background: var(--label-color);
+    color: #fff;
+}
+
+.task-label-picker-option input {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+    margin: 0;
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    opacity: 0.65;
+}
+
+.task-label-picker-option input:checked {
+    border-color: var(--label-color);
+    background: var(--label-color);
+    opacity: 1;
+}
+
+.task-label-picker-swatch {
+    width: 8px;
+    height: 8px;
+    flex: 0 0 8px;
+    border-radius: 50%;
+    background: var(--label-color);
+}
+
+.label-manager-list {
+    display: grid;
+    gap: 6px;
+    max-height: 220px;
+    overflow: auto;
+}
+
+.label-manager-tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid rgba(17, 24, 39, 0.16);
+}
+
+.label-manager-tab {
+    border: 0;
+    border-bottom: 2px solid transparent;
+    padding: 8px 12px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+}
+
+.label-manager-tab[aria-selected="true"] {
+    border-bottom-color: currentColor;
+    font-weight: 700;
+}
+
+.label-manager-tab:hover,
+.label-manager-tab:focus-visible {
+    background: var(--control-hover-background);
+}
+
+.label-manager-panel {
+    display: grid;
+    gap: 10px;
+}
+
+.label-manager-panel[hidden] {
+    display: none;
+}
+
+#createLabelPanel .modal-actions {
+    justify-content: center;
+}
+
+.label-manager-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 7px 9px;
+    border-left: 4px solid var(--label-color);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.label-manager-row button {
+    border: 1px solid var(--control-border);
+    border-radius: 5px;
+    padding: 4px 8px;
+    background: var(--control-background);
+    color: var(--control-text);
+    cursor: pointer;
+}
+
+.label-manager-row .label-delete-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 4px;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: inherit;
+}
+
+.label-manager-row .label-delete-button:hover,
+.label-manager-row .label-delete-button:focus-visible {
+    background: var(--control-hover-background);
+}
+
+.label-manager-row .label-delete-button svg {
+    width: 20px;
+    height: 20px;
+}
+
 .task-content.expandable {
     cursor: pointer;
 }
@@ -403,11 +685,99 @@ body.light-mode .task-item:not(.completed):not(.overdue):not(.due-soon) {
 }
 
 .controls {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
     align-items: center;
     max-width: 100%;
+}
+
+.label-filter-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 20;
+    min-width: 210px;
+    padding: 12px;
+    border: 1px solid var(--control-border);
+    border-radius: 8px;
+    background: var(--dark-modal-background);
+    color: var(--dark-modal-text);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+body.light-mode .label-filter-panel {
+    background: var(--light-background);
+    color: var(--light-text);
+}
+
+.label-filter-panel[hidden] {
+    display: none;
+}
+
+.label-filter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.label-filter-header > strong {
+    display: block;
+}
+
+.label-filter-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 4px;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.label-filter-close:hover,
+.label-filter-close:focus-visible {
+    background: var(--control-hover-background);
+}
+
+#labelFilterOptions {
+    display: grid;
+    gap: 6px;
+}
+
+.label-filter-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-left: 3px solid var(--label-color);
+    padding-left: 6px;
+    cursor: pointer;
+}
+
+.label-manager-row {
+    align-items: center;
+}
+
+.label-manager-fields {
+    display: flex;
+    flex: 1;
+    gap: 6px;
+}
+
+.label-manager-fields input[type="text"] {
+    min-width: 0;
+}
+
+.label-manager-fields input[type="color"] {
+    width: 42px;
+    padding: 2px;
 }
 
 #creationWindow.modal {
@@ -438,6 +808,14 @@ body.light-mode .task-item:not(.completed):not(.overdue):not(.due-soon) {
 
 #settingsModal {
     align-items: flex-start;
+}
+
+#labelManagerModal {
+    align-items: flex-start;
+}
+
+#labelManagerModal .modal-content {
+    margin-top: 16px;
 }
 
 .modal-content {
