@@ -141,6 +141,7 @@ function ensureTaskShape(t) {
         recurrenceInterval: Number.isInteger(t.recurrenceInterval)
             ? t.recurrenceInterval
             : 1,
+        recurrenceEndDate: t.recurrenceEndDate || "",
         labelIds: Array.isArray(t.labelIds) ? t.labelIds : [],
     };
 }
@@ -1213,6 +1214,7 @@ async function createTask() {
             recurrenceId,
             recurrence,
             recurrenceInterval: recurrence === "custom" ? recurrenceInterval : 1,
+            recurrenceEndDate: recurrence === "none" ? "" : recurrenceEndDate,
             labelIds,
         });
 
@@ -1273,6 +1275,12 @@ function openTaskModal(taskId) {
     document.getElementById("modalTaskName").value = task.name || "";
     document.getElementById("modalDueDate").value = task.dueDate || "";
     document.getElementById("modalDueTime").value = task.dueTime || "";
+    document.getElementById("modalRecurrence").value = task.recurrence || "none";
+    document.getElementById("modalRecurrenceInterval").value =
+        task.recurrenceInterval || 3;
+    document.getElementById("modalRecurrenceEndDate").value =
+        task.recurrenceEndDate || getRecurrenceEndDate(task);
+    toggleTaskRecurrenceOptions();
     document.getElementById("modalTaskNotes").value = task.notes || "";
     populateLabelInputs();
     Array.from(document.getElementById("modalLabelInput").options).forEach(
@@ -1286,6 +1294,33 @@ function openTaskModal(taskId) {
     );
 
     document.getElementById("taskModal").classList.add("open");
+}
+
+function getRecurrenceEndDate(task) {
+    if (!task.recurrenceId) return "";
+
+    const occurrenceDates = taskList
+        .filter((candidate) => candidate.recurrenceId === task.recurrenceId)
+        .map((candidate) => candidate.dueDate)
+        .filter(Boolean)
+        .sort();
+
+    return occurrenceDates[occurrenceDates.length - 1] || task.dueDate || "";
+}
+
+function toggleTaskRecurrenceOptions() {
+    const recurrenceInput = document.getElementById("modalRecurrence");
+    const options = document.getElementById("modalRecurrenceOptions");
+    const customRow = document.getElementById("modalCustomRecurrenceRow");
+    const endDateInput = document.getElementById("modalRecurrenceEndDate");
+    const intervalInput = document.getElementById("modalRecurrenceInterval");
+    const isRecurring = recurrenceInput && recurrenceInput.value !== "none";
+    const isCustom = recurrenceInput && recurrenceInput.value === "custom";
+
+    if (options) options.hidden = !isRecurring;
+    if (customRow) customRow.hidden = !isCustom;
+    if (endDateInput) endDateInput.required = Boolean(isRecurring);
+    if (intervalInput) intervalInput.required = Boolean(isCustom);
 }
 
 function closeTaskModal() {
@@ -1356,14 +1391,51 @@ async function saveTaskEdits() {
     if (!task) return;
 
     const name = document.getElementById("modalTaskName").value.trim();
+    const dueDate = document.getElementById("modalDueDate").value;
+    const dueTime = document.getElementById("modalDueTime").value;
+    const recurrence = document.getElementById("modalRecurrence").value;
+    const recurrenceEndDate = document.getElementById("modalRecurrenceEndDate").value;
+    const recurrenceInterval = Number.parseInt(
+        document.getElementById("modalRecurrenceInterval").value,
+        10,
+    );
     if (!name) {
         alert("Task Name cannot be empty.");
         return;
     }
 
+    if (recurrence !== "none" && !recurrenceEndDate) {
+        alert("Choose an end date for the recurring task.");
+        return;
+    }
+
+    if (
+        recurrence === "custom" &&
+        (!Number.isInteger(recurrenceInterval) || recurrenceInterval < 1)
+    ) {
+        alert("The custom interval must be a whole number of at least 1 day.");
+        return;
+    }
+
+    if (
+        recurrence !== "none" &&
+        new Date(`${recurrenceEndDate}T00:00`) < new Date(`${dueDate}T00:00`)
+    ) {
+        alert("The recurrence end date must be on or after the first due date.");
+        return;
+    }
+
     task.name = name;
-    task.dueDate = document.getElementById("modalDueDate").value;
-    task.dueTime = document.getElementById("modalDueTime").value;
+    task.dueDate = dueDate;
+    task.dueTime = dueTime;
+    task.recurrence = recurrence;
+    task.recurrenceInterval =
+        recurrence === "custom" ? recurrenceInterval : 1;
+    task.recurrenceEndDate = recurrence === "none" ? "" : recurrenceEndDate;
+    if (recurrence === "none") task.recurrenceId = "";
+    if (recurrence !== "none" && !task.recurrenceId) {
+        task.recurrenceId = makeId("recurrence");
+    }
     task.notes = document.getElementById("modalTaskNotes").value;
     task.labelIds = Array.from(
         document.getElementById("modalLabelInput").selectedOptions,
@@ -1389,6 +1461,7 @@ async function duplicateSelectedTask() {
         recurrenceId: "",
         recurrence: "none",
         recurrenceInterval: 1,
+        recurrenceEndDate: "",
     });
 
     taskList.push(duplicate);

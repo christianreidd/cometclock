@@ -548,6 +548,28 @@
                     <label for="modalDueTime">Due Time</label>
                     <input id="modalDueTime" type="time" />
 
+                    <label for="modalRecurrence">Repeat</label>
+                    <select id="modalRecurrence" onchange="toggleTaskRecurrenceOptions()">
+                        <option value="none">Never</option>
+                        <option value="daily">Every Day</option>
+                        <option value="weekly">Every Week</option>
+                        <option value="fortnightly">Every Fortnight</option>
+                        <option value="monthly">Every Month</option>
+                        <option value="custom">Custom...</option>
+                    </select>
+
+                    <div id="modalRecurrenceOptions" class="recurrence-options" hidden>
+                        <div id="modalCustomRecurrenceRow" hidden>
+                            <label for="modalRecurrenceInterval">Repeat Every</label>
+                            <div class="recurrence-interval">
+                                <input id="modalRecurrenceInterval" type="number" min="1" step="1" value="3" />
+                                <span>days</span>
+                            </div>
+                        </div>
+                        <label for="modalRecurrenceEndDate">Repeat Until                        </label>
+                        <input id="modalRecurrenceEndDate" type="date" />
+                    </div>
+
                     <label for="modalTaskNotes">Notes</label>
                     <textarea
                         id="modalTaskNotes"
