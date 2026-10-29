@@ -9,7 +9,7 @@ let activeTaskTab = "active";
 let selectedTaskId = null;
 let pendingDeletionTaskId = null;
 let pendingClearTasksMode = null;
-const APP_VERSION = "cometclock v0.4.0";
+const APP_VERSION = "cometclock v0.4.1";
 const DEFAULT_LABELS = [
     { name: "Priority 1", color: "#ef4444" },
     { name: "Priority 2", color: "#f97316" },
