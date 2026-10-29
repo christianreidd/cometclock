@@ -10,7 +10,7 @@ let selectedTaskId = null;
 let pendingDeletionTaskId = null;
 let pendingClearTasksMode = null;
 let recurrenceCreationConfirmed = false;
-const APP_VERSION = "cometclock v0.4.2";
+const APP_VERSION = "cometclock v0.4.3";
 const DEFAULT_LABELS = [
     { name: "Priority 1", color: "#ef4444" },
     { name: "Priority 2", color: "#f97316" },
@@ -402,6 +402,12 @@ function renderLabelManager() {
         colorInput.type = "color";
         colorInput.value = label.color;
         colorInput.setAttribute("aria-label", `Colour for ${label.name}`);
+        const updateLabelPreviewColor = () => {
+            row.style.setProperty("--label-color", colorInput.value);
+            row.style.borderLeftColor = colorInput.value;
+        };
+        colorInput.addEventListener("input", updateLabelPreviewColor);
+        colorInput.addEventListener("change", updateLabelPreviewColor);
         editFields.append(nameInput, colorInput);
         deleteButton.addEventListener("click", async () => {
             labelList = labelList.filter((item) => item.id !== label.id);
@@ -453,6 +459,16 @@ async function saveLabelEdits() {
 }
 
 function openLabelManager() {
+    const colorInput = document.getElementById("newLabelColor");
+    if (colorInput && !colorInput.dataset.previewBound) {
+        const updatePreview = () => {
+            colorInput.style.setProperty("--label-color", colorInput.value);
+        };
+        colorInput.addEventListener("input", updatePreview);
+        colorInput.addEventListener("change", updatePreview);
+        colorInput.dataset.previewBound = "true";
+        updatePreview();
+    }
     renderLabelManager();
     selectLabelManagerTab("manage");
     document.getElementById("labelManagerModal").classList.add("open");
@@ -545,8 +561,12 @@ async function createLabel() {
     await labelsAdapter.save(labelList);
     nameInput.value = "";
     colorInput.value = "#a879c4";
+    colorInput.style.setProperty("--label-color", colorInput.value);
     renderLabelManager();
     populateLabelInputs();
+    const creationMessage = document.getElementById("labelCreationMessage");
+    creationMessage.textContent = `Label "${name}" created`;
+    creationMessage.hidden = false;
 }
 
 function applyTheme() {

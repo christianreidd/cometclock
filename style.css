@@ -452,6 +452,12 @@ body.light-mode .task-label-picker-options {
     justify-content: center;
 }
 
+.validation-message {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.75;
+}
+
 .label-manager-row {
     display: flex;
     align-items: center;
@@ -778,6 +784,29 @@ body.light-mode .label-filter-panel {
 .label-manager-fields input[type="color"] {
     width: 42px;
     padding: 2px;
+}
+
+.create-label-color-input {
+    appearance: none;
+    -webkit-appearance: none;
+    height: 38px;
+    padding: 8px !important;
+    background: var(--dark-field-background) !important;
+    cursor: pointer;
+}
+
+.create-label-color-input::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.create-label-color-input::-webkit-color-swatch {
+    border: 0;
+    border-radius: 4px;
+    background: var(--label-color);
+}
+
+body.light-mode .create-label-color-input {
+    background: var(--light-field-background) !important;
 }
 
 #creationWindow.modal {

@@ -636,10 +636,11 @@
                         <label for="newLabelName">New Label</label>
                         <input id="newLabelName" type="text" placeholder="Label Name" />
                         <label for="newLabelColor">Colour</label>
-                        <input id="newLabelColor" type="color" value="#a879c4" />
+                        <input id="newLabelColor" class="create-label-color-input" type="color" value="#a879c4" />
                         <div class="modal-actions">
                             <button type="button" onClick="createLabel()">Create Label</button>
                         </div>
+                        <p id="labelCreationMessage" class="validation-message" role="status" aria-live="polite" hidden></p>
                     </div>
                     <div class="modal-actions">
                         <button id="saveLabelEditsButton" type="button" onClick="saveLabelEdits()">Save</button>
