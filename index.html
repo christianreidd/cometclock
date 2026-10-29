@@ -723,6 +723,31 @@
                 </div>
             </div>
 
+            <div id="recurrenceConfirmationModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Create repeating tasks?</h3>
+                        <button
+                            class="modal-close-btn"
+                            type="button"
+                            aria-label="Close Repeat Confirmation"
+                            onClick="closeRecurrenceConfirmation()"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x preview-icon"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
+                    </div>
+                    <p id="recurrenceConfirmationText"></p>
+                    <div class="modal-actions">
+                        <button type="button" onClick="confirmRecurringTaskCreation()">
+                            Create Tasks
+                        </button>
+                        <button type="button" onClick="closeRecurrenceConfirmation()">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div id="importMessageModal" class="modal">
                 <div class="modal-content">
                     <div class="modal-header">

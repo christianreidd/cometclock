@@ -823,7 +823,8 @@ body.light-mode .label-filter-panel {
     box-sizing: border-box;
     transform: translateX(-50px);
     max-height: calc(100vh - 32px);
-    overflow: auto hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     background: var(--dark-modal-background);
     color: var(--dark-modal-text);
     border-radius: 12px;
