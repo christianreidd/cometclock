@@ -10,7 +10,8 @@ let selectedTaskId = null;
 let pendingDeletionTaskId = null;
 let pendingClearTasksMode = null;
 let recurrenceCreationConfirmed = false;
-const APP_VERSION = "cometclock v0.4.3";
+let recurrenceEditConfirmed = false;
+const APP_VERSION = "cometclock v0.4.4";
 const DEFAULT_LABELS = [
     { name: "Priority 1", color: "#ef4444" },
     { name: "Priority 2", color: "#f97316" },
@@ -1202,18 +1203,65 @@ function getRecurrenceCount(
     return count;
 }
 
+function getRecurrenceDates(
+    assignmentDate,
+    recurrence,
+    recurrenceEndDate,
+    recurrenceInterval,
+) {
+    const dates = [];
+    let occurrenceDate = new Date(`${assignmentDate}T00:00`);
+    const endDate = new Date(`${recurrenceEndDate}T00:00`);
+    const monthlyDay = occurrenceDate.getDate();
+
+    while (occurrenceDate <= endDate) {
+        dates.push(getLocalDateValue(occurrenceDate));
+        if (recurrence === "daily") {
+            occurrenceDate.setDate(occurrenceDate.getDate() + 1);
+        } else if (recurrence === "weekly") {
+            occurrenceDate.setDate(occurrenceDate.getDate() + 7);
+        } else if (recurrence === "fortnightly") {
+            occurrenceDate.setDate(occurrenceDate.getDate() + 14);
+        } else if (recurrence === "monthly") {
+            const nextMonth = occurrenceDate.getMonth() + 1;
+            const lastDayOfNextMonth = new Date(
+                occurrenceDate.getFullYear(),
+                nextMonth + 1,
+                0,
+            ).getDate();
+            occurrenceDate = new Date(
+                occurrenceDate.getFullYear(),
+                nextMonth,
+                Math.min(monthlyDay, lastDayOfNextMonth),
+            );
+        } else {
+            occurrenceDate.setDate(
+                occurrenceDate.getDate() + recurrenceInterval,
+            );
+        }
+    }
+
+    return dates;
+}
+
 function closeRecurrenceConfirmation() {
     recurrenceCreationConfirmed = false;
+    recurrenceEditConfirmed = false;
     document
         .getElementById("recurrenceConfirmationModal")
         .classList.remove("open");
 }
 
 function confirmRecurringTaskCreation() {
-    recurrenceCreationConfirmed = true;
     document
         .getElementById("recurrenceConfirmationModal")
         .classList.remove("open");
+    if (recurrenceEditConfirmed) {
+        recurrenceEditConfirmed = false;
+        saveTaskEdits(true);
+        return;
+    }
+    recurrenceCreationConfirmed = true;
     createTask(true);
 }
 
@@ -1484,7 +1532,7 @@ async function confirmTaskDeletion() {
     }
 }
 
-async function saveTaskEdits() {
+async function saveTaskEdits(isConfirmed = false) {
     if (!selectedTaskId) return;
     const task = findTaskById(selectedTaskId);
     if (!task) return;
@@ -1524,6 +1572,41 @@ async function saveTaskEdits() {
         return;
     }
 
+    const recurrenceDates =
+        recurrence === "none"
+            ? []
+            : getRecurrenceDates(
+                  dueDate,
+                  recurrence,
+                  recurrenceEndDate,
+                  recurrenceInterval,
+              );
+    const recurrenceId =
+        recurrence === "none"
+            ? ""
+            : task.recurrenceId || makeId("recurrence");
+    const existingOccurrenceDates = new Set(
+        taskList
+            .filter(
+                (candidate) =>
+                    candidate.recurrenceId === recurrenceId &&
+                    candidate.id !== task.id,
+            )
+            .map((candidate) => `${candidate.dueDate}|${candidate.dueTime}`),
+    );
+    const newOccurrenceCount = recurrenceDates.filter(
+        (date) => !existingOccurrenceDates.has(`${date}|${dueTime}`),
+    ).length - 1;
+    if (newOccurrenceCount > 0 && !isConfirmed) {
+        recurrenceEditConfirmed = true;
+        document.getElementById("recurrenceConfirmationText").textContent =
+            `This will create ${newOccurrenceCount} additional task${newOccurrenceCount === 1 ? "" : "s"}. Do you want to continue?`;
+        document
+            .getElementById("recurrenceConfirmationModal")
+            .classList.add("open");
+        return;
+    }
+
     task.name = name;
     task.dueDate = dueDate;
     task.dueTime = dueTime;
@@ -1532,14 +1615,28 @@ async function saveTaskEdits() {
         recurrence === "custom" ? recurrenceInterval : 1;
     task.recurrenceEndDate = recurrence === "none" ? "" : recurrenceEndDate;
     if (recurrence === "none") task.recurrenceId = "";
-    if (recurrence !== "none" && !task.recurrenceId) {
-        task.recurrenceId = makeId("recurrence");
-    }
+    task.recurrenceId = recurrenceId;
     task.notes = document.getElementById("modalTaskNotes").value;
     task.labelIds = Array.from(
         document.getElementById("modalLabelInput").selectedOptions,
         (option) => option.value,
     );
+
+    if (recurrence !== "none") {
+        const additionalTasks = recurrenceDates
+            .filter(
+                (date) => !existingOccurrenceDates.has(`${date}|${dueTime}`),
+            )
+            .filter((date) => date !== task.dueDate || dueTime !== task.dueTime)
+            .map((date) => ({
+                ...task,
+                id: makeId(),
+                dueDate: date,
+                dateAdded: new Date().toISOString(),
+                completed: false,
+            }));
+        taskList.push(...additionalTasks);
+    }
 
     await saveTasks();
     renderTasks();
